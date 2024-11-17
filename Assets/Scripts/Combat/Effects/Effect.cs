@@ -1,15 +1,22 @@
+using Combat.Effects;
 using UnityEngine;
 
 namespace Combat
 {
     [CreateAssetMenu(menuName = "Game/New Effect", fileName = "New Effect")]
-    public class Effect : ScriptableObject
+    public class Effect : ScriptableObject, IEffect
     {
+
         [Tooltip("If 0 <= x <= 1 then it is a treated as a multiplier, otherwise as an additive value")]
         [field: SerializeField]
         public Stats BonusOrMultiplier { get; private set; }
-
-        [field: SerializeField] public float Duration { get; private set; }
+        
+        [SerializeField] private float duration;
+        float IEffect.Duration
+        {
+            get => duration;
+            set => duration = value;
+        }
 
         public Stats CalculateBonus(Stats baseStats)
         {

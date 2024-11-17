@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Combat.Actions;
+using Combat.Effects;
 using Combat.Passives;
 using DG.Tweening;
 using TMPro;
@@ -34,7 +35,7 @@ namespace Combat
         public Vector2Int Size => size;
         public float Hp => currentHpPercentage * currentStats.MaxHp;
 
-        private List<(Effect, float)> _effects;
+        private List<(IEffect, float)> _effects;
         private List<IAction> _actions;
         private List<IPassive> _passives;
 
@@ -59,7 +60,7 @@ namespace Combat
 
         private void Start()
         {
-            _effects = new List<(Effect, float)>();
+            _effects = new List<(IEffect, float)>();
             _actions = new List<IAction>();
             _passives = new List<IPassive>();
             currentHpPercentage = 1;
@@ -123,13 +124,13 @@ namespace Combat
             }
         }
 
-        public void AddEffect(Effect effect)
+        public void AddEffect(IEffect effect)
         {
             _effects.Add((effect, effect.Duration));
             CalculateStats();
         }
 
-        public IReadOnlyList<(Effect, float)> GetEffects()
+        public IReadOnlyList<(IEffect, float)> GetEffects()
         {
             return _effects;
         }
