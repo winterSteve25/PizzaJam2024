@@ -1,3 +1,4 @@
+using Combat.Units;
 using UnityEngine;
 using Worlds;
 
@@ -9,6 +10,7 @@ namespace Combat.Actions
         
         public void Act(World world, Unit unit)
         {
+            Debug.Log("WOAH");
         }
     }
 }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: d4a19e66e5a415c479d281c60935431b
+guid: 6cc4aebc357b56b48b0fff9083d5a8d7
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Stormfaze
+  - Pixeled
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

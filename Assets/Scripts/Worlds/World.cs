@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Combat;
+using Combat.Units;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -10,8 +12,14 @@ namespace Worlds
         public static World Current { get; private set; }
 
         [field: SerializeField] public Tilemap TileMap { get; private set; }
+        [field: SerializeField] public Vector2Int Size { get; private set; }
 
         private Dictionary<Vector2Int, Unit> _units;
+
+        private void OnDrawGizmos()
+        {
+            DrawBound(Vector3.zero, Size);
+        }
 
         private void OnValidate()
         {
@@ -67,14 +75,7 @@ namespace Worlds
         public void AddUnit(Vector3 worldPos, Unit unit)
         {
             var pos = GetGridPosOfObject(worldPos, unit.Size);
-            
-            for (int i = 0; i < unit.Size.x; i++)
-            {
-                for (int j = 0; j < unit.Size.y; j++)
-                {
-                    _units.Add(new Vector2Int(pos.x + i, pos.y + j), unit);
-                }
-            }
+            AddUnit(new Vector2Int(pos.x, pos.y), unit);
         }
 
         public Vector2 ClosestGridLocation(Vector3 position, Vector2 size)
@@ -98,6 +99,25 @@ namespace Worlds
             corner.y += cellSize.y * 0.5f;
 
             return TileMap.WorldToCell(corner);
+        }
+
+        public static void DrawBound(Vector3 position, Vector2Int size)
+        {
+            Gizmos.color = Color.white;
+
+            var gridPos = Current.ClosestGridLocation(position, new Vector3(size.x, size.y, 0));
+            gridPos.x -= size.x * 0.5f;
+            gridPos.y -= size.y * 0.5f;
+
+            var bl = new Vector2(gridPos.x, gridPos.y);
+            var br = new Vector2(gridPos.x + size.x, gridPos.y);
+            var tl = new Vector2(gridPos.x, gridPos.y + size.y);
+            var tr = new Vector2(gridPos.x + size.x, gridPos.y + size.y);
+
+            Gizmos.DrawLine(bl, br);
+            Gizmos.DrawLine(bl, tl);
+            Gizmos.DrawLine(br, tr);
+            Gizmos.DrawLine(tl, tr);
         }
     }
 }

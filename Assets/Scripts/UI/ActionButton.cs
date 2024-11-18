@@ -53,13 +53,14 @@ namespace UI
         public void OnPointerDown(PointerEventData eventData)
         {
             _originalSize = false;
-            arrow.DOScale(0.013f, 0.1f)
+            arrow.DOScale(1.13f, 0.1f)
                 .SetEase(Ease.OutCubic);
             _arrowImg.DOColor(Color.red, 0.1f);
         }
 
         public void OnSelect(BaseEventData eventData)
         {
+            arrow.DOMoveX(_rect.position.x, 0.01f).SetEase(Ease.OutCubic);
             arrow.DOMoveY(_rect.position.y, 0.1f).SetEase(Ease.OutCubic);
         }
 
@@ -77,8 +78,8 @@ namespace UI
         private void ResetCursor()
         {
             if (_originalSize) return;
-            arrow.DOScale(0.01f, 0.1f)
-                .SetEase(Ease.OutCubic);
+            arrow.DOScale(1f, 0.1f)
+            .SetEase(Ease.OutCubic);
             _arrowImg.DOColor(Color.white, 0.1f);
         }
     }

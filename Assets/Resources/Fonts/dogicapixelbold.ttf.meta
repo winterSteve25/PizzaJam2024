@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 0c9717a032a05a14bb3d0c2d371e78e5
+guid: 1dd4a67aa8689f444a9f0981d7064bdb
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -9,7 +9,7 @@ TrueTypeFontImporter:
   characterPadding: 1
   includeFontData: 1
   fontNames:
-  - Recharge
+  - Dogica Pixel
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0
