@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Combat;
 using Combat.Units;
 using UnityEngine;
 using UnityEngine.Tilemaps;
@@ -13,7 +12,8 @@ namespace Worlds
 
         [field: SerializeField] public Tilemap TileMap { get; private set; }
         [field: SerializeField] public Vector2Int Size { get; private set; }
-
+        [field: SerializeField] public AreaSelection AreaSelection { get; private set; }
+        
         private Dictionary<Vector2Int, Unit> _units;
 
         private void OnDrawGizmos()
@@ -51,7 +51,7 @@ namespace Worlds
                     _units.Remove(new Vector2Int(was.x + i, was.y + j));
                 }
             }
-            
+
             if (_units.ContainsKey(now))
             {
                 return false;
@@ -71,7 +71,7 @@ namespace Worlds
                 }
             }
         }
-        
+
         public void AddUnit(Vector3 worldPos, Unit unit)
         {
             var pos = GetGridPosOfObject(worldPos, unit.Size);
@@ -84,7 +84,7 @@ namespace Worlds
 
             worldPos.x += size.x * 0.5f;
             worldPos.y += size.y * 0.5f;
-            
+
             return worldPos;
         }
 

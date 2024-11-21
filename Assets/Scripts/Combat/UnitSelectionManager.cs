@@ -6,7 +6,7 @@ using Worlds;
 
 namespace Combat
 {
-    public class SelectionManager : MonoBehaviour
+    public class UnitSelectionManager : MonoBehaviour
     {
         [SerializeField] private Camera cam;
 

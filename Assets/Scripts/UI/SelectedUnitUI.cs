@@ -31,12 +31,12 @@ namespace UI
 
         private void OnEnable()
         {
-            SelectionManager.UnitSelected += UpdateVisual;
+            UnitSelectionManager.UnitSelected += UpdateVisual;
         }
 
         private void OnDisable()
         {
-            SelectionManager.UnitSelected -= UpdateVisual;
+            UnitSelectionManager.UnitSelected -= UpdateVisual;
         }
 
         private void Start()

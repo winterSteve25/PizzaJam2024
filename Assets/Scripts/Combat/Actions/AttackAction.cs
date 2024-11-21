@@ -10,7 +10,10 @@ namespace Combat.Actions
         
         public void Act(World world, Unit unit)
         {
-            Debug.Log("WOAH");
+            world.AreaSelection.Select(unit.transform.position, new Vector2Int(1, 1), 5, (p) =>
+            {
+                Debug.Log(p);
+            });
         }
     }
 }
