@@ -25,6 +25,8 @@ namespace Combat.Actions
                         u.Hurt(unit.CurrentStats.Attack * multiplier, unit.UnitLevel);
                     }
                 }
+                
+                combatManager.NextTurn();
             }, Shape, (p, origin) => world.AreaSelection.Passable(p, origin) && Shape(p, origin));
         }
 

@@ -10,6 +10,7 @@ namespace Worlds
     public class AreaSelection : MonoBehaviour
     {
         public delegate bool ShapePredicate(Vector2Int position, Vector2Int origin);
+        public delegate Vector2Int LandingFunc(Vector2Int position, Vector2Int origin);
 
         [SerializeField] private TileBase[] unpassableTiles;
         [SerializeField] private Tilemap areaIndication;
@@ -25,7 +26,7 @@ namespace Worlds
 
         private Action<Vector2Int, Vector2Int> _areaCallback;
         private Action<Unit> _unitCallback;
-        private Func<Vector2Int, Vector2Int> _landingPosition;
+        private LandingFunc _landingPosition;
 
         private Vector2Int _size;
         private Vector2Int _origin;
@@ -108,7 +109,7 @@ namespace Worlds
             if (_landingPosition != null)
             {
                 selectedIndication.SetTile(
-                    (Vector3Int)(_landingPosition((Vector2Int)mpGridPos) - (Vector2Int)mpGridPos),
+                    (Vector3Int)(_landingPosition((Vector2Int)mpGridPos, _origin) - (Vector2Int)mpGridPos),
                     pointerTile
                 );
             }
@@ -159,7 +160,7 @@ namespace Worlds
         }
 
         public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit> callback, ShapePredicate shape,
-            Func<Vector2Int, Vector2Int> landingPosition = null)
+            LandingFunc landingPosition = null)
         {
             var og = (Vector2Int)World.Current.TileMap.WorldToCell(origin);
             SetUpSelect(range, og, Vector2Int.one, shape);
@@ -169,6 +170,7 @@ namespace Worlds
             _shape = shape;
             _pickAlly = ally;
             _landingPosition = landingPosition;
+            _size = Vector2Int.one;
         }
 
         private void SetUpSelect(int range, Vector2Int origin, Vector2Int size, ShapePredicate shape)

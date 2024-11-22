@@ -186,7 +186,8 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      totem_attack2_0: -8040972528735553973
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

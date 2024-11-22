@@ -2,9 +2,7 @@ using System.Collections.Generic;
 using Combat.Actions;
 using Combat.Effects;
 using Combat.Passives;
-using TMPro;
 using UnityEngine;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Worlds;
 using Random = UnityEngine.Random;
@@ -14,9 +12,8 @@ namespace Combat.Units
     public class Unit : MonoBehaviour, IDamagable
     {
         [Header("Stats")]
-        [field: SerializeField]
-        public string UnitName { get; private set; }
-
+        public Vector2Int gridPosition;
+        [field: SerializeField] public string UnitName { get; private set; }
         [field: SerializeField] public int UnitLevel { get; private set; }
         [field: SerializeField] public Stats BaseStats { get; private set; }
         [field: SerializeField] public Stats CurrentStats { get; private set; }
@@ -35,8 +32,6 @@ namespace Combat.Units
         public List<IAction> Actions { get; private set; }
         public List<IPassive> Passives { get; private set; }
         
-        [FormerlySerializedAs("worldPosition")] public Vector2Int gridPosition;
-
         private void OnDrawGizmosSelected()
         {
             World.DrawBound(transform.position, Size);
@@ -61,7 +56,7 @@ namespace Combat.Units
             hpSlider.value = CurrentHpPercentage;
 
             var infoPos = info.transform.localPosition;
-            infoPos.y = 0.5f * Size.y;
+            infoPos.y = 0.8f * Size.y;
             info.transform.localPosition = infoPos;
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(info);
