@@ -23,7 +23,7 @@ namespace Worlds
         [SerializeField] private TileBase killTile;
         [SerializeField] private TileBase supportTile;
 
-        private Action<Vector3Int> _areaCallback;
+        private Action<Vector2Int, Vector2Int> _areaCallback;
         private Action<Unit> _unitCallback;
         private Func<Vector2Int, Vector2Int> _landingPosition;
 
@@ -40,16 +40,15 @@ namespace Worlds
             var mp = Input.mousePosition;
             mp = cam.ScreenToWorldPoint(mp);
 
-            if ((selectedIndication.transform.position - mp).sqrMagnitude < 1)
-            {
-                return;
-            }
+            var dir = (Vector2Int)World.Current.GetGridPosOfObject(mp, Vector2.one) - _origin;
+            var switchAxis = Mathf.Abs(dir.x) > Mathf.Abs(dir.y);
+            var size = switchAxis ? new Vector2Int(_size.y, _size.x) : _size;
 
-            var mpGridPos = World.Current.GetGridPosOfObject(mp, _size);
-            var pos = World.Current.ClosestGridLocation(mp, _size);
+            var mpGridPos = World.Current.GetGridPosOfObject(mp, size);
+            var pos = World.Current.ClosestGridLocation(mp, size);
 
-            pos.x += _size.x * -0.5f + 0.03f;
-            pos.y += _size.y * -0.5f + 0.03f;
+            pos.x += size.x * -0.5f + 0.03f;
+            pos.y += size.y * -0.5f + 0.03f;
 
             selectedIndication.transform.DOMove(pos, 0.2f)
                 .SetEase(Ease.OutCubic);
@@ -57,21 +56,20 @@ namespace Worlds
             if (_areaCallback != null)
             {
                 bool success = true;
+                
+                selectedIndication.ClearAllTiles();
 
-                for (int i = 0; i < _size.x; i++)
+                for (int i = 0; i < size.x; i++)
                 {
-                    for (int j = 0; j < _size.y; j++)
+                    for (int j = 0; j < size.y; j++)
                     {
                         var offsetted = new Vector2Int(i + mpGridPos.x, j + mpGridPos.y);
                         var tile = pointerTile;
                         if (!_shape(offsetted, _origin)) tile = failTile;
                         if (!_valid(offsetted)) tile = failTile;
                         selectedIndication.SetTile(new Vector3Int(i, j), tile);
-
-                        if (tile != pointerTile)
-                        {
-                            success = false;
-                        }
+                        if (tile == pointerTile) continue;
+                        success = false;
                     }
                 }
 
@@ -82,7 +80,7 @@ namespace Worlds
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _areaCallback(mpGridPos);
+                    _areaCallback((Vector2Int)mpGridPos, size);
                     _areaCallback = null;
 
                     areaIndication.ClearAllTiles();
@@ -134,20 +132,19 @@ namespace Worlds
             int range,
             Vector3 origin,
             Vector2Int size,
-            Action<Vector3Int> callback,
+            Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
             Predicate<Vector2Int> valid
         )
         {
-            Select(range, (Vector2Int)World.Current.GetGridPosOfObject(origin, size), size, callback, shape,
-                valid);
+            Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid);
         }
 
         private void Select(
             int range,
             Vector2Int origin,
             Vector2Int size,
-            Action<Vector3Int> callback,
+            Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
             Predicate<Vector2Int> valid
         )
@@ -164,7 +161,7 @@ namespace Worlds
         public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit> callback, ShapePredicate shape,
             Func<Vector2Int, Vector2Int> landingPosition = null)
         {
-            var og = (Vector2Int)World.Current.GetGridPosOfObject(origin, Vector2.one);
+            var og = (Vector2Int)World.Current.TileMap.WorldToCell(origin);
             SetUpSelect(range, og, Vector2Int.one, shape);
 
             _unitCallback = callback;
@@ -188,6 +185,11 @@ namespace Worlds
                     var pos = new Vector2Int(i, j) + origin;
                     if (!shape(pos, origin)) continue;
                     if (!Passable(pos)) continue;
+                    if (i == 0 && j == 0)
+                    {
+                        areaIndication.SetTile(new Vector3Int(pos.x, pos.y, 0), supportTile);
+                        continue;
+                    }
                     areaIndication.SetTile(new Vector3Int(pos.x, pos.y, 0), rangeTile);
                 }
             }
@@ -204,7 +206,7 @@ namespace Worlds
 
         public void PreviewArea(int range, Vector3 origin, ShapePredicate shape)
         {
-            SetUpSelect(range, (Vector2Int)World.Current.GetGridPosOfObject(origin, Vector2.one), Vector2Int.zero, shape);
+            SetUpSelect(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), Vector2Int.zero, shape);
         }
 
         public void RemovePreview()

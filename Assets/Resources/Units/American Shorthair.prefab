@@ -1142,6 +1142,7 @@ MonoBehaviour:
   title: {fileID: 7738541483481628292}
   hpSlider: {fileID: 1705023819416316106}
   info: {fileID: 6651969886119731775}
+  gridPosition: {x: 0, y: 0}
 --- !u!95 &7479194161402513840
 Animator:
   serializedVersion: 7

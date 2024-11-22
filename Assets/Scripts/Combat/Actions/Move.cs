@@ -13,10 +13,10 @@ namespace Combat.Actions
         
         public void Act(World world, Unit unit)
         {
-            world.AreaSelection.Select(range, unit.transform.position, Vector2Int.one, (p) =>
+            world.AreaSelection.Select(range, unit.transform.position, Vector2Int.one, (p, size) =>
             {
-                world.MoveUnit(unit.gridPosition, (Vector2Int)p);
-                unit.transform.DOMove(p, 0.4f).SetEase(Ease.InOutCubic);
+                world.MoveUnit(unit.gridPosition, p);
+                unit.transform.DOMove(new Vector3(p.x, p.y, unit.transform.position.z), 0.4f).SetEase(Ease.InOutCubic);
             }, AreaSelection.Circle(range), world.AreaSelection.Passable);
         }
 
