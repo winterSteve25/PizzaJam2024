@@ -7,8 +7,9 @@ namespace Combat.Actions
 {
     public class ShieldTankSkill : MonoBehaviour, IAction
     {
-        public string Name => "Defence Skill";
-        public string Description => "";
+        public string Name => "Got your back ";
+        public string Description => $"Provides nearby allies with {_SHIELD} DEF for 2 turns";
+        private float _SHIELD => transform.parent.GetComponent<Unit>().CurrentStats.Defence;
 
         [SerializeField] private float defBufMultiplier = 1;
         [SerializeField] private int range = 3;

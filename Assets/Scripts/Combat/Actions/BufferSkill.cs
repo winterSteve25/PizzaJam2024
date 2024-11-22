@@ -7,8 +7,8 @@ namespace Combat.Actions
 {
     public class BufferSkill : MonoBehaviour, IAction
     {
-        public string Name => "Buff";
-        public string Description => "";
+        public string Name => "Let's GOOOO";
+        public string Description => "Grants an ally 10% speed bonus and 25% bonus CRIT Chance lasting for 2 turns";
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {

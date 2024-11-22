@@ -1,5 +1,6 @@
 using System;
 using Combat;
+using Combat.Actions;
 using Combat.Units;
 using DG.Tweening;
 using TMPro;
@@ -14,7 +15,7 @@ namespace UI
     {
         [SerializeField] private CanvasGroup mainPanel;
 
-        [Header("Info")] 
+        [Header("Info")]
         [SerializeField] private TMP_Text title;
         [SerializeField] private TMP_Text hp;
         [SerializeField] private TMP_Text attack;
@@ -23,11 +24,15 @@ namespace UI
         [SerializeField] private TMP_Text critChance;
         [SerializeField] private TMP_Text critMultiplier;
 
-        [Header("Actions")] 
+        [Header("Actions")]
         [SerializeField] private RectTransform actionsList;
         [SerializeField] private ActionButton actionPrefab;
         [SerializeField] private CanvasGroup arrow;
         [SerializeField] private RectTransform actionsPanel;
+
+        [Header("ToolTip")]
+        [SerializeField] private CanvasGroup tooltipPanel;
+        [SerializeField] private TMP_Text tooltipText;
 
         private void OnEnable()
         {
@@ -67,8 +72,8 @@ namespace UI
             attack.text = $"ATK: {unit.CurrentStats.Attack}";
             defence.text = $"DEF: {unit.CurrentStats.Defence}";
             speed.text = $"SPD: {unit.CurrentStats.Speed}";
-            critChance.text = $"Crit Chance: {unit.CurrentStats.CritChance}";
-            critMultiplier.text = $"Crit Multiplier: {unit.CurrentStats.CritMultiplier}";
+            critChance.text = $"Crit Chance: {unit.CurrentStats.CritChance * 100}";
+            critMultiplier.text = $"Crit Multiplier: {unit.CurrentStats.CritMultiplier * 100}";
 
             var isTurnOf = CombatManager.Current.IsTurnOf(unit);
             if (isTurnOf)
@@ -90,7 +95,15 @@ namespace UI
                         HidePanel(null);
                         action.Act(World.Current, unit, CombatManager.Current);
                     };
-                    btn.OnHover += () => action.PreviewArea(World.Current, unit);
+                    btn.OnHover += () =>
+                    {
+                        action.PreviewArea(World.Current, unit);
+                        
+                        if (action.Description != "")
+                            ShowToolTip(action);
+                        else 
+                            HideToolTip();
+                    };
                     first ??= btn;
                 }
 
@@ -110,10 +123,36 @@ namespace UI
             else
             {
                 actionsPanel.gameObject.SetActive(false);
+                tooltipPanel.gameObject.SetActive(false);
             }
 
             arrow.alpha = 0;
             ShowPanel(isTurnOf);
+        }
+        private void ShowToolTip(IAction action)
+        {
+            tooltipText.text = action.Description;
+            tooltipPanel.gameObject.SetActive(true);
+            tooltipPanel.blocksRaycasts = true;
+            tooltipPanel.interactable = true;
+
+            tooltipPanel.DOFade(1, 0.2f);
+            ((RectTransform)tooltipPanel.transform).DOPivotY(0, 0.2f)
+                .SetEase(Ease.OutExpo);
+        }
+        private void HideToolTip()
+        {
+            tooltipPanel.blocksRaycasts = false;
+            tooltipPanel.interactable = false;
+
+            tooltipPanel.DOFade(0, 0.2f);
+
+            ((RectTransform)tooltipPanel.transform).DOPivotY(1.5f, 0.2f)
+                .SetEase(Ease.OutCubic)
+                .OnComplete(() =>
+                {
+                    tooltipPanel.gameObject.SetActive(false);
+                });
         }
 
         private void ShowPanel(bool showArrow)
@@ -121,7 +160,7 @@ namespace UI
             mainPanel.gameObject.SetActive(true);
             mainPanel.blocksRaycasts = true;
             mainPanel.interactable = true;
-            
+
             mainPanel.DOFade(1, 0.2f);
             ((RectTransform)mainPanel.transform).DOPivotY(0, 0.2f)
                 .SetEase(Ease.OutExpo);
@@ -136,7 +175,7 @@ namespace UI
         {
             mainPanel.blocksRaycasts = false;
             mainPanel.interactable = false;
-            
+
             mainPanel.DOFade(0, 0.2f);
             arrow.DOFade(0, 0.05f);
 
