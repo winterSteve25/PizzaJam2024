@@ -27,7 +27,7 @@ namespace Combat.Units
         [SerializeField] private GameObject actions;
         [SerializeField] private GameObject passives;
 
-        [Header("UI")] [SerializeField] private TMP_Text title;
+        [Header("UI")]
         [SerializeField] private Slider hpSlider;
         [SerializeField] private RectTransform info;
 
