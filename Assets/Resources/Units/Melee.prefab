@@ -628,6 +628,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6371495180457409000}
   - component: {fileID: 6764086742976867393}
+  - component: {fileID: 7078492261092841796}
   - component: {fileID: 3281857981901207038}
   m_Layer: 0
   m_Name: Actions
@@ -664,6 +665,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 7
+--- !u!114 &7078492261092841796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6252055617280502086}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 464f72d360224a90b7057befa88ed4b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  range: 3
+  multiplier: 1.7
+  size: {x: 3, y: 1}
 --- !u!114 &3281857981901207038
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,7 +693,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 5
-  multiplier: 1
+  multiplier: 3.1
 --- !u!1 &6670577623128083913
 GameObject:
   m_ObjectHideFlags: 0
@@ -957,6 +973,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3355162424286027810}
+  - component: {fileID: 8146181727604608513}
   m_Layer: 0
   m_Name: Passives
   m_TagString: Untagged
@@ -979,6 +996,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8481349660298515448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8146181727604608513
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7897479095314162386}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6075e8aac364d2ead1a5fc391370556, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  critMulBuff: 0.2
+  critChanceBuff: 0.15
 --- !u!1 &8169964713254546501
 GameObject:
   m_ObjectHideFlags: 0
@@ -1031,10 +1062,10 @@ MonoBehaviour:
   <UnitName>k__BackingField: Assasin Cat
   <UnitLevel>k__BackingField: 1
   <BaseStats>k__BackingField:
-    <Attack>k__BackingField: 100
+    <Attack>k__BackingField: 112
     <Defence>k__BackingField: 100
-    <MaxHp>k__BackingField: 800
-    <Speed>k__BackingField: 25
+    <MaxHp>k__BackingField: 1000
+    <Speed>k__BackingField: 20
     <CritChance>k__BackingField: 0.15
     <CritMultiplier>k__BackingField: 0.5
   <CurrentStats>k__BackingField:
