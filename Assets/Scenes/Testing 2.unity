@@ -611,10 +611,15 @@ MonoBehaviour:
   - {fileID: 11400000, guid: d14872f2f4c3a8f4290c13412fc58926, type: 2}
   - {fileID: 11400000, guid: a8ae86f36094bdd4194b4e70c2083634, type: 2}
   - {fileID: 11400000, guid: 9cb97536b39a1bf4587e3e9d4fa6f46f, type: 2}
-  areaEffectPrefab: {fileID: 3257755610338870636, guid: aff3c6f4bb983914787a2cea264538b6, type: 3}
+  areaIndication: {fileID: 0}
+  selectedIndication: {fileID: 0}
   lineRenderer: {fileID: 966388551}
-  areas: {fileID: 1808914850}
   cam: {fileID: 519420031}
+  rangeTile: {fileID: 0}
+  failTile: {fileID: 0}
+  pointerTile: {fileID: 0}
+  killTile: {fileID: 0}
+  supportTile: {fileID: 0}
 --- !u!4 &411988670
 Transform:
   m_ObjectHideFlags: 0
