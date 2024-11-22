@@ -58,7 +58,6 @@ namespace Combat.Units
             World.Current.AddUnit(transform.position, this);
             CombatManager.Current.AddUnit(this);
 
-            title.text = $"Lv {UnitLevel} - {UnitName}";
             hpSlider.value = CurrentHpPercentage;
 
             var infoPos = info.transform.localPosition;
