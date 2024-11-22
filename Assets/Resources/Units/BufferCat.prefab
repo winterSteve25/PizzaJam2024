@@ -805,7 +805,6 @@ MonoBehaviour:
   <CurrentHpPercentage>k__BackingField: 1
   actions: {fileID: 6252055617280502086}
   passives: {fileID: 7897479095314162386}
-  title: {fileID: 0}
-  hpSlider: {fileID: 0}
+  hpSlider: {fileID: 9168925923041741119}
   info: {fileID: 0}
   gridPosition: {x: 0, y: 0}
