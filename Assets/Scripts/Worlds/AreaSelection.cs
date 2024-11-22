@@ -30,7 +30,7 @@ namespace Worlds
         private Vector2Int _size;
         private Vector2Int _origin;
         private ShapePredicate _shape;
-        private Predicate<Vector2Int> _valid;
+        private ShapePredicate _valid;
         private bool _pickAlly;
 
         private void Update()
@@ -45,7 +45,7 @@ namespace Worlds
             var size = switchAxis ? new Vector2Int(_size.y, _size.x) : _size;
 
             var mpGridPos = World.Current.GetGridPosOfObject(mp, size);
-            var pos = World.Current.ClosestGridLocation(mp, size);
+            var pos = World.Current.SnapToGrid(mp, size);
 
             pos.x += size.x * -0.5f + 0.03f;
             pos.y += size.y * -0.5f + 0.03f;
@@ -66,7 +66,7 @@ namespace Worlds
                         var offsetted = new Vector2Int(i + mpGridPos.x, j + mpGridPos.y);
                         var tile = pointerTile;
                         if (!_shape(offsetted, _origin)) tile = failTile;
-                        if (!_valid(offsetted)) tile = failTile;
+                        if (!_valid(offsetted, _origin)) tile = failTile;
                         selectedIndication.SetTile(new Vector3Int(i, j), tile);
                         if (tile == pointerTile) continue;
                         success = false;
@@ -134,7 +134,7 @@ namespace Worlds
             Vector2Int size,
             Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
-            Predicate<Vector2Int> valid
+            ShapePredicate valid
         )
         {
             Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid);
@@ -146,7 +146,7 @@ namespace Worlds
             Vector2Int size,
             Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
-            Predicate<Vector2Int> valid
+            ShapePredicate valid
         )
         {
             SetUpSelect(range, origin, size, shape);
@@ -184,12 +184,7 @@ namespace Worlds
                 {
                     var pos = new Vector2Int(i, j) + origin;
                     if (!shape(pos, origin)) continue;
-                    if (!Passable(pos)) continue;
-                    if (i == 0 && j == 0)
-                    {
-                        areaIndication.SetTile(new Vector3Int(pos.x, pos.y, 0), supportTile);
-                        continue;
-                    }
+                    if (!Passable(pos, origin)) continue;
                     areaIndication.SetTile(new Vector3Int(pos.x, pos.y, 0), rangeTile);
                 }
             }
@@ -224,10 +219,15 @@ namespace Worlds
             return (_, _) => true;
         }
 
-        public bool Passable(Vector2Int p)
+        public bool Passable(Vector2Int p, Vector2Int origin)
         {
             var tile = World.Current.TileMap.GetTile(new Vector3Int(p.x, p.y, 0));
             return tile == null || !unpassableTiles.Contains(tile);
+        }
+
+        public bool PassableAndEmpty(Vector2Int p, Vector2Int origin)
+        {
+            return Passable(p, origin) && !World.Current.GetUnitAt(p, out _);
         }
     }
 }

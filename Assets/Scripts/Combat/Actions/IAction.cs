@@ -7,10 +7,8 @@ namespace Combat.Actions
     {
         string Name { get; }
         
-        void Act(World world, Unit unit);
+        void Act(World world, Unit unit, CombatManager combatManager);
 
         void PreviewArea(World world, Unit unit);
-
-        void RemovePreview(World world);
     }
 }

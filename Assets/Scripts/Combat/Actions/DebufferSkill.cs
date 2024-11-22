@@ -14,18 +14,13 @@ namespace Combat.Actions
         [SerializeField] private float atkDebuff = 0.3f;
         [SerializeField] private int duration = 3;
 
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
         }
 
         public void PreviewArea(World world, Unit unit)
         {
             world.AreaSelection.PreviewArea(range, unit.transform.position, AreaSelection.Circle(range));
-        }
-
-        public void RemovePreview(World world)
-        {
-            world.AreaSelection.RemovePreview();
         }
 
         private class Debuff : IEffect

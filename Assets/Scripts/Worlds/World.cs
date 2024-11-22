@@ -80,7 +80,7 @@ namespace Worlds
             AddUnit(new Vector2Int(pos.x, pos.y), unit);
         }
 
-        public Vector2 ClosestGridLocation(Vector3 position, Vector2 size)
+        public Vector2 SnapToGrid(Vector3 position, Vector2 size)
         {
             var worldPos = TileMap.CellToWorld(GetGridPosOfObject(position, size));
 
@@ -88,6 +88,16 @@ namespace Worlds
             worldPos.y += size.y * 0.5f;
 
             return worldPos;
+        }
+
+        public Vector2 CellToWorld(Vector2Int position, Vector2Int size)
+        {
+            var p = TileMap.CellToWorld((Vector3Int)position);
+
+            p.x += size.x * 0.5f;
+            p.y += size.y * 0.5f;
+
+            return p;
         }
 
         public Vector3Int GetGridPosOfObject(Vector3 position, Vector2 size)
@@ -107,7 +117,7 @@ namespace Worlds
         {
             Gizmos.color = Color.white;
 
-            var gridPos = Current.ClosestGridLocation(position, new Vector3(size.x, size.y, 0));
+            var gridPos = Current.SnapToGrid(position, new Vector3(size.x, size.y, 0));
             gridPos.x -= size.x * 0.5f;
             gridPos.y -= size.y * 0.5f;
 

@@ -11,23 +11,20 @@ namespace Combat.Actions
 
         [SerializeField] private int range;
         
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
             world.AreaSelection.Select(range, unit.transform.position, Vector2Int.one, (p, size) =>
             {
+                unit.transform.DOMove(world.CellToWorld(p, unit.Size), 0.4f)
+                    .SetEase(Ease.InOutCubic);
                 world.MoveUnit(unit.gridPosition, p);
-                unit.transform.DOMove(new Vector3(p.x, p.y, unit.transform.position.z), 0.4f).SetEase(Ease.InOutCubic);
-            }, AreaSelection.Circle(range), world.AreaSelection.Passable);
+                combatManager.NextTurn();
+            }, AreaSelection.Circle(range), world.AreaSelection.PassableAndEmpty);
         }
 
         public void PreviewArea(World world, Unit unit)
         {
             world.AreaSelection.PreviewArea(range, unit.transform.position, AreaSelection.Circle(range));
-        }
-
-        public void RemovePreview(World world)
-        {
-            world.AreaSelection.RemovePreview();
         }
     }
 }

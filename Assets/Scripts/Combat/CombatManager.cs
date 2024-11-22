@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using Combat.Units;
 using UnityEngine;
@@ -68,10 +69,21 @@ namespace Combat
                 StartNewRound();
                 return;
             }
-
+            
+            Debug.Log($"{_units[unit].UnitName}({unit})'s turn has started");
+            
             _acting = unit;
             OnTurnChanged?.Invoke(_units[_acting]);
             _units[_acting].TurnStarted();
+            UnitSelectionManager.Current.SelectedUnit = _units[_acting];
+            UnitSelectionManager.Current.overriden = true;
+            StartCoroutine(RemoveOverride());
+        }
+
+        private IEnumerator RemoveOverride()
+        {
+            yield return new WaitForEndOfFrame();
+            UnitSelectionManager.Current.overriden = false;
         }
 
         public void AddUnit(Unit unit)

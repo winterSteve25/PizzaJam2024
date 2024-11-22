@@ -11,7 +11,6 @@ namespace UI
     {
         public event Action OnClick;
         public event Action OnHover;
-        public event Action OnExitHover;
         
         [SerializeField] private RectTransform arrow;
         [SerializeField] private TMP_Text text;
@@ -51,7 +50,6 @@ namespace UI
         public void OnPointerExit(PointerEventData eventData)
         {
             ResetCursor();
-            OnExitHover?.Invoke();
         }
         
         public void OnPointerDown(PointerEventData eventData)

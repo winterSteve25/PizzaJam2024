@@ -7,16 +7,13 @@ namespace Combat.Actions
     {
         public string Name => "Heal Self";
         
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
             unit.HealPercentage(0.1f);
+            combatManager.NextTurn();
         }
 
         public void PreviewArea(World world, Unit unit)
-        {
-        }
-
-        public void RemovePreview(World world)
         {
         }
     }

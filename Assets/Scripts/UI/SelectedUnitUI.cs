@@ -49,11 +49,15 @@ namespace UI
 
         private void UpdateVisual(Unit unit)
         {
+            Debug.Log(unit);
+            
             if (unit == null)
             {
                 HidePanel(null);
                 return;
             }
+            
+            Debug.Log(unit.UnitName);
 
             if (mainPanel.gameObject.activeSelf)
             {
@@ -84,9 +88,12 @@ namespace UI
                 {
                     var btn = Instantiate(actionPrefab, actionsList.transform);
                     btn.Init(action.Name, (RectTransform)arrow.transform);
-                    btn.OnClick += () => action.Act(World.Current, unit);
+                    btn.OnClick += () =>
+                    {
+                        HidePanel(null);
+                        action.Act(World.Current, unit, CombatManager.Current);
+                    };
                     btn.OnHover += () => action.PreviewArea(World.Current, unit);
-                    btn.OnExitHover += () => action.RemovePreview(World.Current);
                     first ??= btn;
                 }
 
@@ -115,6 +122,9 @@ namespace UI
         private void ShowPanel(bool showArrow)
         {
             mainPanel.gameObject.SetActive(true);
+            mainPanel.blocksRaycasts = true;
+            mainPanel.interactable = true;
+            
             mainPanel.DOFade(1, 0.2f);
             ((RectTransform)mainPanel.transform).DOPivotY(0, 0.2f)
                 .SetEase(Ease.OutExpo);
@@ -127,6 +137,9 @@ namespace UI
 
         private void HidePanel(Action callback)
         {
+            mainPanel.blocksRaycasts = false;
+            mainPanel.interactable = false;
+            
             mainPanel.DOFade(0, 0.2f);
             arrow.DOFade(0, 0.05f);
 

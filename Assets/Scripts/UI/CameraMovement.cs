@@ -20,7 +20,7 @@ namespace UI
         {
             targetZoom = cam.orthographicSize;
 
-            var pos = World.Current.ClosestGridLocation(Vector3.zero, Vector2.one);
+            var pos = World.Current.SnapToGrid(Vector3.zero, Vector2.one);
             transform.position = new Vector3(pos.x, pos.y, -10);
 
             var cellsX = Mathf.FloorToInt(World.Current.Size.x * 0.5f);

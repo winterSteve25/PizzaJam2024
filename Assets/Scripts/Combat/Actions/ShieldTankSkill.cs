@@ -12,7 +12,7 @@ namespace Combat.Actions
         [SerializeField] private float defBufMultiplier = 1;
         [SerializeField] private int range = 3;
 
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
             var halfRange = Mathf.FloorToInt(range * 0.5f);
             
@@ -26,16 +26,13 @@ namespace Combat.Actions
                     other.AddEffect(new DefBuff(unit.CurrentStats.Defence * defBufMultiplier));
                 }
             }
+            
+            combatManager.NextTurn();
         }
 
         public void PreviewArea(World world, Unit unit)
         {
             world.AreaSelection.PreviewArea(range, unit.transform.position, AreaSelection.Rect());
-        }
-
-        public void RemovePreview(World world)
-        {
-            world.AreaSelection.RemovePreview();
         }
 
         private class DefBuff : IEffect

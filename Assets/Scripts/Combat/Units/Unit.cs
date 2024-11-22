@@ -50,7 +50,7 @@ namespace Combat.Units
             CurrentHpPercentage = 1;
             actions.GetComponents(Actions);
             passives.GetComponents(Passives);
-            transform.position = World.Current.ClosestGridLocation(transform.position, Size);
+            transform.position = World.Current.SnapToGrid(transform.position, Size);
 
             CalculateStats();
             

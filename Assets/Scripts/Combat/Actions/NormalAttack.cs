@@ -4,16 +4,17 @@ using Worlds;
 
 namespace Combat.Actions
 {
-    public class MeleeNormalAtk : MonoBehaviour, IAction
+    public class NormalAttack : MonoBehaviour, IAction
     {
-        public string Name => "Normal Atk";
+        public string Name => "Normal Attack";
 
         [SerializeField] private int range = 3;
-        [SerializeField] private float multiplier = 1.7f;
+        [SerializeField] private float multiplier;
+        [SerializeField] private Vector2Int size;
 
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
-            world.AreaSelection.Select(3, unit.transform.position, new Vector2Int(3, 1), (p, size) =>
+            world.AreaSelection.Select(range, unit.transform.position, size, (p, size) =>
             {
                 for (int i = 0; i < size.x; i++)
                 {
@@ -23,15 +24,14 @@ namespace Combat.Actions
                         u.Hurt(unit.CurrentStats.Attack * multiplier, unit.UnitLevel);
                     }
                 }
-            }, AreaSelection.Circle(3), world.AreaSelection.Passable);
+                
+                combatManager.NextTurn();
+            }, AreaSelection.Circle(range), world.AreaSelection.Passable);
         }
 
         public void PreviewArea(World world, Unit unit)
         {
-        }
-
-        public void RemovePreview(World world)
-        {
+            world.AreaSelection.PreviewArea(range, unit.transform.position, AreaSelection.Circle(range));
         }
     }
 }

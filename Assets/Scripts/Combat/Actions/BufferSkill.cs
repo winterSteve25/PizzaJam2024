@@ -9,15 +9,11 @@ namespace Combat.Actions
     {
         public string Name => "Buff";
 
-        public void Act(World world, Unit unit)
+        public void Act(World world, Unit unit, CombatManager combatManager)
         {
         }
 
         public void PreviewArea(World world, Unit unit)
-        {
-        }
-
-        public void RemovePreview(World world)
         {
         }
 
