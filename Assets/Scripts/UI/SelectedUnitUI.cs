@@ -49,15 +49,12 @@ namespace UI
 
         private void UpdateVisual(Unit unit)
         {
-            Debug.Log(unit);
-            
             if (unit == null)
             {
                 HidePanel(null);
+                World.Current.AreaSelection.RemovePreview();
                 return;
             }
-            
-            Debug.Log(unit.UnitName);
 
             if (mainPanel.gameObject.activeSelf)
             {
