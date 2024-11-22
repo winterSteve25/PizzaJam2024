@@ -1,106 +1,231 @@
 using System;
-using System.Collections.Generic;
+using System.Linq;
+using Combat.Units;
 using DG.Tweening;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.Tilemaps;
 
 namespace Worlds
 {
     public class AreaSelection : MonoBehaviour
     {
+        public delegate bool ShapePredicate(Vector2Int position, Vector2Int origin);
+
         [SerializeField] private TileBase[] unpassableTiles;
-        [SerializeField] private GameObject areaEffectPrefab;
+        [SerializeField] private Tilemap areaIndication;
+        [SerializeField] private Tilemap selectedIndication;
         [SerializeField] private LineRenderer lineRenderer;
-        [SerializeField] private Transform areas;
         [SerializeField] private Camera cam;
 
-        private IObjectPool<GameObject> _squares;
-        private Action<Vector3Int> _callback;
-        private List<GameObject> _activatedSquares;
+        [SerializeField] private TileBase rangeTile;
+        [SerializeField] private TileBase failTile;
+        [SerializeField] private TileBase pointerTile;
+        [SerializeField] private TileBase killTile;
+        [SerializeField] private TileBase supportTile;
+
+        private Action<Vector3Int> _areaCallback;
+        private Action<Unit> _unitCallback;
+        private Func<Vector2Int, Vector2Int> _landingPosition;
+
         private Vector2Int _size;
-        private int _range;
         private Vector2Int _origin;
-
-        private void Start()
-        {
-            _squares = new ObjectPool<GameObject>(
-                () => Instantiate(areaEffectPrefab, areas),
-                (go) => go.gameObject.SetActive(true),
-                (go) => go.gameObject.SetActive(false),
-                Destroy,
-                defaultCapacity: 25
-            );
-
-            _activatedSquares = new List<GameObject>();
-        }
+        private ShapePredicate _shape;
+        private Predicate<Vector2Int> _valid;
+        private bool _pickAlly;
 
         private void Update()
         {
-            if (_callback == null) return;
-            
+            if (_areaCallback == null && _unitCallback == null) return;
+
             var mp = Input.mousePosition;
             mp = cam.ScreenToWorldPoint(mp);
 
-            if ((areas.transform.position - mp).sqrMagnitude < 1)
+            if ((selectedIndication.transform.position - mp).sqrMagnitude < 1)
             {
-                Debug.Log((areas.transform.position - mp).sqrMagnitude < 1);
                 return;
             }
 
+            var mpGridPos = World.Current.GetGridPosOfObject(mp, _size);
             var pos = World.Current.ClosestGridLocation(mp, _size);
-            
-            pos.x -= _size.x * 0.5f;
-            pos.y -= _size.y * 0.5f;
-            
-            areas.transform.DOMove(pos, 0.2f)
+
+            pos.x += _size.x * -0.5f + 0.03f;
+            pos.y += _size.y * -0.5f + 0.03f;
+
+            selectedIndication.transform.DOMove(pos, 0.2f)
                 .SetEase(Ease.OutCubic);
 
-            if (Input.GetMouseButtonDown(0))
+            if (_areaCallback != null)
             {
-                var gridPos = World.Current.GetGridPosOfObject(mp, _size);
+                bool success = true;
 
-                if (((Vector2Int) gridPos - _origin).magnitude > _range)
+                for (int i = 0; i < _size.x; i++)
+                {
+                    for (int j = 0; j < _size.y; j++)
+                    {
+                        var offsetted = new Vector2Int(i + mpGridPos.x, j + mpGridPos.y);
+                        var tile = pointerTile;
+                        if (!_shape(offsetted, _origin)) tile = failTile;
+                        if (!_valid(offsetted)) tile = failTile;
+                        selectedIndication.SetTile(new Vector3Int(i, j), tile);
+
+                        if (tile != pointerTile)
+                        {
+                            success = false;
+                        }
+                    }
+                }
+
+                if (!success)
                 {
                     return;
                 }
-                
-                _callback(gridPos);
-                _callback = null;
 
-                foreach (var sq in _activatedSquares)
+                if (Input.GetMouseButtonDown(0))
                 {
-                    _squares.Release(sq);
+                    _areaCallback(mpGridPos);
+                    _areaCallback = null;
+
+                    areaIndication.ClearAllTiles();
+                    selectedIndication.ClearAllTiles();
                 }
-                
-                _activatedSquares.Clear();
+            }
+
+            if (_unitCallback == null) return;
+
+            bool found = World.Current.GetUnitAt((Vector2Int)mpGridPos, out var unit);
+            bool valid = found && (_pickAlly ? unit.IsAlly() : !unit.IsAlly());
+
+            selectedIndication.SetTile(
+                Vector3Int.zero,
+                !found
+                    ? failTile
+                    : _pickAlly
+                        ? unit.IsAlly() ? supportTile : failTile
+                        : unit.IsAlly()
+                            ? failTile
+                            : killTile
+            );
+
+            if (!valid) return;
+            if (_landingPosition != null)
+            {
+                selectedIndication.SetTile(
+                    (Vector3Int)(_landingPosition((Vector2Int)mpGridPos) - (Vector2Int)mpGridPos),
+                    pointerTile
+                );
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (!_shape((Vector2Int)mpGridPos, _origin))
+                {
+                    return;
+                }
+
+                _unitCallback(unit);
+                _unitCallback = null;
+
+                areaIndication.ClearAllTiles();
+                selectedIndication.ClearAllTiles();
             }
         }
 
-        public void Select(Vector3 origin, Vector2Int size, int range, Action<Vector3Int> callback)
+        public void Select(
+            int range,
+            Vector3 origin,
+            Vector2Int size,
+            Action<Vector3Int> callback,
+            ShapePredicate shape,
+            Predicate<Vector2Int> valid
+        )
         {
-            Select((Vector2Int) World.Current.GetGridPosOfObject(origin, size), size, range, callback);
+            Select(range, (Vector2Int)World.Current.GetGridPosOfObject(origin, size), size, callback, shape,
+                valid);
         }
 
-        private void Select(Vector2Int origin, Vector2Int size, int range, Action<Vector3Int> callback)
+        private void Select(
+            int range,
+            Vector2Int origin,
+            Vector2Int size,
+            Action<Vector3Int> callback,
+            ShapePredicate shape,
+            Predicate<Vector2Int> valid
+        )
         {
-            areas.transform.position = Vector3.zero;
-            
+            SetUpSelect(range, origin, size, shape);
+
+            _size = size;
+            _areaCallback = callback;
+            _origin = origin;
+            _shape = shape;
+            _valid = valid;
+        }
+
+        public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit> callback, ShapePredicate shape,
+            Func<Vector2Int, Vector2Int> landingPosition = null)
+        {
+            var og = (Vector2Int)World.Current.GetGridPosOfObject(origin, Vector2.one);
+            SetUpSelect(range, og, Vector2Int.one, shape);
+
+            _unitCallback = callback;
+            _origin = og;
+            _shape = shape;
+            _pickAlly = ally;
+            _landingPosition = landingPosition;
+        }
+
+        private void SetUpSelect(int range, Vector2Int origin, Vector2Int size, ShapePredicate shape)
+        {
+            areaIndication.ClearAllTiles();
+            selectedIndication.ClearAllTiles();
+
+            var halfRange = Mathf.FloorToInt(range * 0.5f);
+
+            for (int i = -halfRange; i <= halfRange; i++)
+            {
+                for (int j = -halfRange; j <= halfRange; j++)
+                {
+                    var pos = new Vector2Int(i, j) + origin;
+                    if (!shape(pos, origin)) continue;
+                    if (!Passable(pos)) continue;
+                    areaIndication.SetTile(new Vector3Int(pos.x, pos.y, 0), rangeTile);
+                }
+            }
+
             for (int i = 0; i < size.x; i++)
             {
                 for (int j = 0; j < size.y; j++)
                 {
-                    var pos = new Vector2(0.5f + i, 0.5f + j);
-                    var sq = _squares.Get();
-                    sq.transform.position = pos;
-                    _activatedSquares.Add(sq);
+                    var pos = new Vector3Int(i, j, 0);
+                    selectedIndication.SetTile(pos, failTile);
                 }
             }
+        }
 
-            _size = size;
-            _callback = callback;
-            _range = range;
-            _origin = origin;
+        public void PreviewArea(int range, Vector3 origin, ShapePredicate shape)
+        {
+            SetUpSelect(range, (Vector2Int)World.Current.GetGridPosOfObject(origin, Vector2.one), Vector2Int.zero, shape);
+        }
+
+        public void RemovePreview()
+        {
+            areaIndication.ClearAllTiles();
+        }
+
+        public static ShapePredicate Circle(int range)
+        {
+            return (position, origin) => (origin - position).magnitude < (range * 0.5f);
+        }
+
+        public static ShapePredicate Rect()
+        {
+            return (_, _) => true;
+        }
+
+        public bool Passable(Vector2Int p)
+        {
+            var tile = World.Current.TileMap.GetTile(new Vector3Int(p.x, p.y, 0));
+            return tile == null || !unpassableTiles.Contains(tile);
         }
     }
 }

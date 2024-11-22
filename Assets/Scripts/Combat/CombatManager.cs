@@ -71,6 +71,7 @@ namespace Combat
 
             _acting = unit;
             OnTurnChanged?.Invoke(_units[_acting]);
+            _units[_acting].TurnStarted();
         }
 
         public void AddUnit(Unit unit)

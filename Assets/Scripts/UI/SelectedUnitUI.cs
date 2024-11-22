@@ -85,6 +85,8 @@ namespace UI
                     var btn = Instantiate(actionPrefab, actionsList.transform);
                     btn.Init(action.Name, (RectTransform)arrow.transform);
                     btn.OnClick += () => action.Act(World.Current, unit);
+                    btn.OnHover += () => action.PreviewArea(World.Current, unit);
+                    btn.OnExitHover += () => action.RemovePreview(World.Current);
                     first ??= btn;
                 }
 

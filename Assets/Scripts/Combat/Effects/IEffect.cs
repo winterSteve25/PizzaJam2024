@@ -1,9 +1,13 @@
+using Combat.Units;
+
 namespace Combat.Effects
 {
     public interface IEffect
     {
-        public float Duration { get; protected set; }
+        public int Duration { get; }
         
         public Stats CalculateBonus(Stats baseStats);
+
+        public void OnNewTurn(Unit unit);
     }
 }

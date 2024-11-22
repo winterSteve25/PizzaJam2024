@@ -4,8 +4,10 @@ using Combat.Effects;
 using Combat.Passives;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 using Worlds;
+using Random = UnityEngine.Random;
 
 namespace Combat.Units
 {
@@ -29,9 +31,11 @@ namespace Combat.Units
         [SerializeField] private Slider hpSlider;
         [SerializeField] private RectTransform info;
 
-        public List<(IEffect, float)> Effects { get; private set; }
+        public List<(IEffect, int)> Effects { get; private set; }
         public List<IAction> Actions { get; private set; }
         public List<IPassive> Passives { get; private set; }
+        
+        [FormerlySerializedAs("worldPosition")] public Vector2Int gridPosition;
 
         private void OnDrawGizmosSelected()
         {
@@ -40,7 +44,7 @@ namespace Combat.Units
 
         private void Awake()
         {
-            Effects = new List<(IEffect, float)>();
+            Effects = new List<(IEffect, int)>();
             Actions = new List<IAction>();
             Passives = new List<IPassive>();
             CurrentHpPercentage = 1;
@@ -62,25 +66,6 @@ namespace Combat.Units
             info.transform.localPosition = infoPos;
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(info);
-        }
-
-        private void Update()
-        {
-            for (var i = 0; i < Effects.Count; i++)
-            {
-                var (effect, durLeft) = Effects[i];
-                durLeft -= Time.deltaTime;
-
-                if (durLeft <= 0)
-                {
-                    Effects.RemoveAt(i);
-                    i--;
-                    CalculateStats();
-                    continue;
-                }
-
-                Effects[i] = (effect, durLeft);
-            }
         }
 
         public void AddEffect(IEffect effect)
@@ -112,7 +97,7 @@ namespace Combat.Units
             return Mathf.Pow(2, x * 0.1f);
         }
 
-        private float DamageDealt(float raw)
+        public float CalculateDmg(float raw)
         {
             if (Random.Range(0f, 1f) < Mathf.Clamp01(CurrentStats.CritChance))
             {
@@ -137,8 +122,47 @@ namespace Combat.Units
             CurrentHpPercentage = newPerc;
         }
 
+        public void Heal(float raw)
+        {
+            HealPercentage(raw / CurrentStats.MaxHp);
+        }
+
+        public void HealPercentage(float percentage)
+        {
+            CurrentHpPercentage += percentage;
+            CurrentHpPercentage = Mathf.Clamp01(CurrentHpPercentage);
+        }
+
         private void Die()
         {
+        }
+
+        public bool IsAlly()
+        {
+            return true;
+        }
+
+        public void TurnStarted()
+        {
+            foreach (var passive in Passives)
+            {
+                passive.OnNewTurn(this);
+            }
+
+            for (var i = 0; i < Effects.Count; i++)
+            {
+                var (effect, duration) = Effects[i];
+                effect.OnNewTurn(this);
+
+                if (duration - 1 <= 0)
+                {
+                    Effects.RemoveAt(i);
+                    i--;
+                    continue;
+                }
+
+                Effects[i] = (effect, duration - 1);
+            }
         }
     }
 }

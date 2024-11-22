@@ -8,5 +8,9 @@ namespace Combat.Actions
         string Name { get; }
         
         void Act(World world, Unit unit);
+
+        void PreviewArea(World world, Unit unit);
+
+        void RemovePreview(World world);
     }
 }

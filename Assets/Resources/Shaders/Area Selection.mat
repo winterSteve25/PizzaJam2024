@@ -64,10 +64,10 @@ Material:
     - _Rotation: -59.71
     - _Strip_Count: 2.28
     - _Strip_Offset: 0
-    - _Strip_Opacity: -0.5
+    - _Strip_Opacity: -1
     - _Strip_Width: 0.14
     - _Stripe_Opacity: -2.47
     m_Colors:
-    - _Color: {r: 0.5235849, g: 0.73123753, b: 1, a: 1}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

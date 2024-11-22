@@ -70,6 +70,8 @@ namespace Worlds
                     _units.Add(new Vector2Int(pos.x + i, pos.y + j), unit);
                 }
             }
+
+            unit.gridPosition = pos;
         }
 
         public void AddUnit(Vector3 worldPos, Unit unit)
