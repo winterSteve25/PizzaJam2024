@@ -7,7 +7,8 @@ namespace Combat.Actions
     public class GappedAttack : MonoBehaviour, IAction
     {
         public string Name => "Normal Attack";
-
+        public string Description => "Normal Attack";
+        
         [SerializeField] private int range = 5;
         [SerializeField] private int gap = 1;
         [SerializeField] private float multiplier;

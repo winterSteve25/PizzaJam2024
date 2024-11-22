@@ -8,6 +8,7 @@ namespace Combat.Actions
     public class Move : MonoBehaviour, IAction
     {
         public string Name => "Move";
+        public string Description => "";
 
         [SerializeField] private int range;
         

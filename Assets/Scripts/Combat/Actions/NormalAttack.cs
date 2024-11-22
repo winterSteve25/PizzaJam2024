@@ -7,6 +7,7 @@ namespace Combat.Actions
     public class NormalAttack : MonoBehaviour, IAction
     {
         public string Name => "Normal Attack";
+        public string Description => "";
 
         [SerializeField] private int range = 3;
         [SerializeField] private float multiplier;

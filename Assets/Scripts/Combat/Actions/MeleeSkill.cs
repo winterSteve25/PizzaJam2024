@@ -7,6 +7,7 @@ namespace Combat.Actions
     public class MeleeSkill : MonoBehaviour, IAction
     {
         public string Name => "Sneaky Striker";
+        public string Description => "";
 
         [SerializeField] private int range;
         [SerializeField] private float multiplier;

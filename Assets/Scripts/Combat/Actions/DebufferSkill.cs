@@ -8,6 +8,7 @@ namespace Combat.Actions
     public class DebufferSkill : MonoBehaviour, IAction
     {
         public string Name => "Debuff Skill";
+        public string Description => "";
 
         [SerializeField] private int range;
         [SerializeField] private float defDebuff = 0.2f;

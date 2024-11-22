@@ -8,6 +8,7 @@ namespace Combat.Actions
     public class ShieldTankSkill : MonoBehaviour, IAction
     {
         public string Name => "Defence Skill";
+        public string Description => "";
 
         [SerializeField] private float defBufMultiplier = 1;
         [SerializeField] private int range = 3;

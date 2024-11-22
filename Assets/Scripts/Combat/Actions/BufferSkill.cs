@@ -8,6 +8,7 @@ namespace Combat.Actions
     public class BufferSkill : MonoBehaviour, IAction
     {
         public string Name => "Buff";
+        public string Description => "";
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {

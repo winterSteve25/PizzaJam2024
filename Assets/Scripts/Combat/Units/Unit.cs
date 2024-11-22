@@ -148,7 +148,7 @@ namespace Combat.Units
                 var (effect, duration) = Effects[i];
                 effect.OnNewTurn(this);
 
-                if (duration - 1 <= 0)
+                if (duration - 1 == 0)
                 {
                     Effects.RemoveAt(i);
                     i--;
