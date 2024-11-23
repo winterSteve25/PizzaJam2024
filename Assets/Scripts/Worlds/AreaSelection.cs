@@ -74,6 +74,7 @@ namespace Worlds
             selectedIndication.transform.DOMove(pos, 0.2f)
                 .SetEase(Ease.OutCubic);
 
+            var gridPosAtMouse = (Vector2Int)mpGridPos;
             if (_areaCallback != null)
             {
                 bool success = true;
@@ -84,7 +85,7 @@ namespace Worlds
                 {
                     for (int j = 0; j < size.y; j++)
                     {
-                        var offsetted = new Vector2Int(i + mpGridPos.x, j + mpGridPos.y);
+                        var offsetted = new Vector2Int(i + gridPosAtMouse.x, j + gridPosAtMouse.y);
                         var tile = pointerTile;
                         if (!_shape(offsetted, _origin)) tile = failTile;
                         if (!_valid(offsetted, _origin)) tile = failTile;
@@ -101,7 +102,7 @@ namespace Worlds
 
                 if (Input.GetMouseButtonDown(0))
                 {
-                    _areaCallback((Vector2Int)mpGridPos, size);
+                    _areaCallback(gridPosAtMouse, size);
                     _areaCallback = null;
 
                     areaIndication.ClearAllTiles();
@@ -111,12 +112,13 @@ namespace Worlds
 
             if (_unitCallback == null) return;
 
-            bool found = World.Current.GetUnitAt((Vector2Int)mpGridPos, out var unit);
+            bool found = World.Current.GetUnitAt(gridPosAtMouse, out var unit);
             bool valid = found && (_pickAlly ? unit.IsAlly() : !unit.IsAlly());
 
+            selectedIndication.ClearAllTiles();
             selectedIndication.SetTile(
                 Vector3Int.zero,
-                !found
+                !found || !_shape(gridPosAtMouse, _origin)
                     ? failTile
                     : _pickAlly
                         ? unit.IsAlly() ? supportTile : failTile
@@ -129,14 +131,14 @@ namespace Worlds
             if (_landingPosition != null)
             {
                 selectedIndication.SetTile(
-                    (Vector3Int)(_landingPosition((Vector2Int)mpGridPos, _origin) - (Vector2Int)mpGridPos),
+                    (Vector3Int)(_landingPosition(gridPosAtMouse, _origin) - gridPosAtMouse),
                     pointerTile
                 );
             }
 
             if (Input.GetMouseButtonDown(0))
             {
-                if (!_shape((Vector2Int)mpGridPos, _origin))
+                if (!_shape(gridPosAtMouse, _origin))
                 {
                     return;
                 }
@@ -147,7 +149,7 @@ namespace Worlds
                 }
                 else
                 {
-                    _unitCallback(unit, _landingPosition((Vector2Int)mpGridPos, _origin) - (Vector2Int)mpGridPos);
+                    _unitCallback(unit, _landingPosition(gridPosAtMouse, _origin));
                 }
 
                 _unitCallback = null;
