@@ -7,13 +7,13 @@ namespace Combat.Actions
     public class HealerTankSkill : MonoBehaviour, IAction
     {
         public string Name => "Heal Self";
-        public string Description => $"Heal self by {_HEALTH * (10/100)} Health";
-        private float _HEALTH => transform.parent.GetComponent<Unit>().CurrentStats.MaxHp;
+        public string Description => $"Heal self by {healPercentage * 100}";
 
+        [SerializeField] private float healPercentage = 0.1f;
         
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
-            unit.HealPercentage(0.1f);
+            unit.HealPercentage(healPercentage);
             combatManager.NextTurn();
         }
 

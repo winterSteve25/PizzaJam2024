@@ -8,10 +8,10 @@ namespace Combat.Actions
     public class ShieldTankSkill : MonoBehaviour, IAction
     {
         public string Name => "Got your back ";
-        public string Description => $"Provides nearby allies with {_SHIELD} DEF for 2 turns";
-        private float _SHIELD => transform.parent.GetComponent<Unit>().CurrentStats.Defence;
-
+        public string Description => $"Provides nearby allies with {defBufMultiplier * 100}% DEF for {duration} turns";
+        
         [SerializeField] private float defBufMultiplier = 1;
+        [SerializeField] private int duration = 2;
         [SerializeField] private int range = 3;
 
         public void Act(World world, Unit unit, CombatManager combatManager)
@@ -25,7 +25,7 @@ namespace Combat.Actions
                     if (i == 0 && j == 0) continue;
                     if (!world.GetUnitAt(new Vector2Int(i, j) + unit.gridPosition, out var other)) continue;
                     if (other == unit) continue;
-                    other.AddEffect(new DefBuff(unit.CurrentStats.Defence * defBufMultiplier));
+                    other.AddEffect(new DefBuff(unit.CurrentStats.Defence * defBufMultiplier, duration));
                 }
             }
             
@@ -39,13 +39,15 @@ namespace Combat.Actions
 
         private class DefBuff : IEffect
         {
-            public int Duration => 3;
+            public int Duration => _duration;
 
             private float _buff;
+            private int _duration;
             
-            public DefBuff(float buff)
+            public DefBuff(float buff, int duration)
             {
                 _buff = buff;
+                _duration = duration;
             }
             
             public Stats CalculateBonus(Stats baseStats)

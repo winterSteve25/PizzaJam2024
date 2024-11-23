@@ -10,6 +10,7 @@ namespace Worlds
     public class AreaSelection : MonoBehaviour
     {
         public delegate bool ShapePredicate(Vector2Int position, Vector2Int origin);
+
         public delegate Vector2Int LandingFunc(Vector2Int position, Vector2Int origin);
 
         [SerializeField] private TileBase[] unpassableTiles;
@@ -25,7 +26,7 @@ namespace Worlds
         [SerializeField] private TileBase supportTile;
 
         private Action<Vector2Int, Vector2Int> _areaCallback;
-        private Action<Unit> _unitCallback;
+        private Action<Unit, Vector2Int> _unitCallback;
         private LandingFunc _landingPosition;
 
         private Vector2Int _size;
@@ -57,7 +58,7 @@ namespace Worlds
             if (_areaCallback != null)
             {
                 bool success = true;
-                
+
                 selectedIndication.ClearAllTiles();
 
                 for (int i = 0; i < size.x; i++)
@@ -121,7 +122,15 @@ namespace Worlds
                     return;
                 }
 
-                _unitCallback(unit);
+                if (_landingPosition == null)
+                {
+                    _unitCallback(unit, _origin);
+                }
+                else
+                {
+                    _unitCallback(unit, _landingPosition((Vector2Int)mpGridPos, _origin) - (Vector2Int)mpGridPos);
+                }
+
                 _unitCallback = null;
 
                 areaIndication.ClearAllTiles();
@@ -159,7 +168,8 @@ namespace Worlds
             _valid = valid;
         }
 
-        public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit> callback, ShapePredicate shape,
+        public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit, Vector2Int> callback,
+            ShapePredicate shape,
             LandingFunc landingPosition = null)
         {
             var og = (Vector2Int)World.Current.TileMap.WorldToCell(origin);

@@ -8,10 +8,14 @@ namespace Combat.Actions
     public class BufferSkill : MonoBehaviour, IAction
     {
         public string Name => "Let's GOOOO";
-        public string Description => "Grants an ally 10% speed bonus and 25% bonus CRIT Chance lasting for 2 turns";
+        public string Description => $"Grants an ally {speedBuff * 100}% speed bonus and {critChanceBuff * 100}% bonus CRIT Chance lasting for 2 turns";
+
+        [SerializeField] private float speedBuff;
+        [SerializeField] private float critChanceBuff;
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
+            
         }
 
         public void PreviewArea(World world, Unit unit)

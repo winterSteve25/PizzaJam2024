@@ -14,7 +14,7 @@ namespace Combat.Actions
         
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
-            world.AreaSelection.Select(range, unit.transform.position, Vector2Int.one, (p, size) =>
+            world.AreaSelection.Select(range, unit.transform.position, unit.Size, (p, size) =>
             {
                 unit.transform.DOMove(world.CellToWorld(p, unit.Size), 0.4f)
                     .SetEase(Ease.InOutCubic);
