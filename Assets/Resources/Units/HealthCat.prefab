@@ -466,7 +466,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6604004934802578461}
   - component: {fileID: 5344773823660758299}
-  - component: {fileID: 1187338989900753748}
+  - component: {fileID: 5557155959124732048}
   m_Layer: 0
   m_Name: Sprite
   m_TagString: Untagged
@@ -533,7 +533,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 6934e55613693744099f149f821864c8, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 10776bbb11a66004097f1c976e91505f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -544,7 +544,7 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!95 &1187338989900753748
+--- !u!95 &5557155959124732048
 Animator:
   serializedVersion: 7
   m_ObjectHideFlags: 0
@@ -554,7 +554,7 @@ Animator:
   m_GameObject: {fileID: 4547386845868082729}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 82c20f1d1b4b5214cb2d3cdec0de704b, type: 2}
+  m_Controller: {fileID: 9100000, guid: 1afde8a82d8a66f4187f6504f7460f7c, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -650,9 +650,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6371495180457409000}
-  - component: {fileID: 6764086742976867393}
-  - component: {fileID: 7078492261092841796}
-  - component: {fileID: 3281857981901207038}
+  - component: {fileID: 876877061478342151}
+  - component: {fileID: 6063120458327976923}
+  - component: {fileID: 1009196021511202162}
   m_Layer: 0
   m_Name: Actions
   m_TagString: Untagged
@@ -675,7 +675,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8481349660298515448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6764086742976867393
+--- !u!114 &876877061478342151
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -687,8 +687,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17957fdf67164069a2ae2886d7b308df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 7
---- !u!114 &7078492261092841796
+  range: 5
+--- !u!114 &6063120458327976923
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -701,9 +701,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   range: 3
-  multiplier: 1.7
-  size: {x: 3, y: 1}
---- !u!114 &3281857981901207038
+  multiplier: 0
+  size: {x: 0, y: 0}
+--- !u!114 &1009196021511202162
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -712,12 +712,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 6252055617280502086}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 23ff6c24d08445219d76571d729a2281, type: 3}
+  m_Script: {fileID: 11500000, guid: e6dd43d6aa7245a7a5deb4731df4e9c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  range: 5
-  multiplier: 3.1
-  bufDuration: 1
+  healPercentage: 0.1
 --- !u!1 &6670577623128083913
 GameObject:
   m_ObjectHideFlags: 0
@@ -997,7 +995,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3355162424286027810}
-  - component: {fileID: 8146181727604608513}
   m_Layer: 0
   m_Name: Passives
   m_TagString: Untagged
@@ -1020,20 +1017,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 8481349660298515448}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8146181727604608513
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7897479095314162386}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a6075e8aac364d2ead1a5fc391370556, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  critMulBuff: 0.2
-  critChanceBuff: 0.15
 --- !u!1 &8169964713254546501
 GameObject:
   m_ObjectHideFlags: 0
@@ -1045,7 +1028,7 @@ GameObject:
   - component: {fileID: 8481349660298515448}
   - component: {fileID: 3008068152407191056}
   m_Layer: 0
-  m_Name: Melee
+  m_Name: HealthCat
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1083,15 +1066,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridPosition: {x: 0, y: 0}
-  <UnitName>k__BackingField: Assasin Cat
+  <UnitName>k__BackingField: Dr.Cat
   <UnitLevel>k__BackingField: 1
   <BaseStats>k__BackingField:
-    <Attack>k__BackingField: 112
+    <Attack>k__BackingField: 100
     <Defence>k__BackingField: 100
     <MaxHp>k__BackingField: 1000
-    <Speed>k__BackingField: 20
-    <CritChance>k__BackingField: 0.15
-    <CritMultiplier>k__BackingField: 0.5
+    <Speed>k__BackingField: 25
+    <CritChance>k__BackingField: 0.05
+    <CritMultiplier>k__BackingField: 1.3
   <CurrentStats>k__BackingField:
     <Attack>k__BackingField: 0
     <Defence>k__BackingField: 0
@@ -1099,7 +1082,7 @@ MonoBehaviour:
     <Speed>k__BackingField: 0
     <CritChance>k__BackingField: 0
     <CritMultiplier>k__BackingField: 0
-  <Size>k__BackingField: {x: 1, y: 1}
+  <Size>k__BackingField: {x: 1, y: 2}
   <CurrentHpPercentage>k__BackingField: 1
   actions: {fileID: 6252055617280502086}
   passives: {fileID: 7897479095314162386}
