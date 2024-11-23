@@ -48,6 +48,11 @@ namespace Combat
                 return;
             }
 
+            if (World.Current.AreaSelection.IsPicking)
+            {
+                return;
+            }
+
             if (overriden)
             {
                 overriden = false;

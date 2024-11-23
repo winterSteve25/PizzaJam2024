@@ -24,6 +24,8 @@ namespace Worlds
         [SerializeField] private TileBase pointerTile;
         [SerializeField] private TileBase killTile;
         [SerializeField] private TileBase supportTile;
+        
+        public bool IsPicking { get; private set; }
 
         private Action<Vector2Int, Vector2Int> _areaCallback;
         private Action<Unit, Vector2Int> _unitCallback;
@@ -33,17 +35,34 @@ namespace Worlds
         private Vector2Int _origin;
         private ShapePredicate _shape;
         private ShapePredicate _valid;
+        private bool _rotatable;
         private bool _pickAlly;
 
         private void Update()
         {
-            if (_areaCallback == null && _unitCallback == null) return;
+            if (_areaCallback == null && _unitCallback == null)
+            {
+                IsPicking = false;
+                return;
+            }
+
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                IsPicking = false;
+                _areaCallback = null;
+                _unitCallback = null;
+                areaIndication.ClearAllTiles();
+                selectedIndication.ClearAllTiles();
+                return;
+            }
+
+            IsPicking = true;
 
             var mp = Input.mousePosition;
             mp = cam.ScreenToWorldPoint(mp);
 
             var dir = (Vector2Int)World.Current.GetGridPosOfObject(mp, Vector2.one) - _origin;
-            var switchAxis = Mathf.Abs(dir.x) > Mathf.Abs(dir.y);
+            var switchAxis = _rotatable && Mathf.Abs(dir.x) > Mathf.Abs(dir.y);
             var size = switchAxis ? new Vector2Int(_size.y, _size.x) : _size;
 
             var mpGridPos = World.Current.GetGridPosOfObject(mp, size);
@@ -144,10 +163,11 @@ namespace Worlds
             Vector2Int size,
             Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
-            ShapePredicate valid
+            ShapePredicate valid,
+            bool rotatable = true
         )
         {
-            Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid);
+            Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid, rotatable);
         }
 
         private void Select(
@@ -156,7 +176,8 @@ namespace Worlds
             Vector2Int size,
             Action<Vector2Int, Vector2Int> callback,
             ShapePredicate shape,
-            ShapePredicate valid
+            ShapePredicate valid,
+            bool rotatable = true
         )
         {
             SetUpSelect(range, origin, size, shape);
@@ -166,6 +187,7 @@ namespace Worlds
             _origin = origin;
             _shape = shape;
             _valid = valid;
+            _rotatable = rotatable;
         }
 
         public void SelectUnit(int range, Vector3 origin, bool ally, Action<Unit, Vector2Int> callback,

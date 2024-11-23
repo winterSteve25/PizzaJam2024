@@ -20,7 +20,7 @@ namespace Combat.Actions
                     .SetEase(Ease.InOutCubic);
                 world.MoveUnit(unit.gridPosition, p);
                 combatManager.NextTurn();
-            }, AreaSelection.Circle(range), world.AreaSelection.PassableAndEmpty);
+            }, AreaSelection.Circle(range), world.AreaSelection.PassableAndEmpty, false);
         }
 
         public void PreviewArea(World world, Unit unit)
