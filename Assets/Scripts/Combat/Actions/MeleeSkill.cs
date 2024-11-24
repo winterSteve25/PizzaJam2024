@@ -18,27 +18,31 @@ namespace Combat.Actions
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
-            world.AreaSelection.SelectUnit(range, unit.transform.position, true, (u, landingPos) =>
+            world.AreaSelection.SelectUnit(range, unit.transform.position, false, (u, landingPos) =>
             {
                 var damaged = false;
                 var landingPosWorldSpace = world.CellToWorld(landingPos, unit.Size);
 
                 var t = unit.transform.DOMove(landingPosWorldSpace, 0.05f)
                     .SetEase(Ease.InCubic)
-                    .OnComplete(() => world.MoveUnit(unit.gridPosition, landingPos));
+                    .OnComplete(() =>
+                    {
+                        world.MoveUnit(unit.gridPosition, landingPos);
+                        combatManager.NextTurn();
+                    });
 
                 t.OnUpdate(() =>
                 {
                     if (!((unit.transform.position - u.transform.position).magnitude < 1) || damaged) return;
-                    u.Hurt(multiplier * unit.CurrentStats.Attack, unit.UnitLevel);
+                    unit.DealDamageTo(u, multiplier * unit.CurrentStats.Attack);
                     damaged = true;
                 });
-            }, AreaSelection.Circle(range), (p, origin) =>
+            }, AreaSelection.Circle(range), (p, origin, u) =>
             {
                 var dir = p - origin;
 
-                dir.x = Mathf.Clamp(dir.x, 0, 1);
-                dir.y = Mathf.Clamp(dir.y, 0, 1);
+                dir.x = dir.x > 0 ? u.Size.x : 0;
+                dir.y = dir.y > 0 ? u.Size.y : 0;
                 
                 return p + dir;
             });

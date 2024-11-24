@@ -12,10 +12,15 @@ namespace Combat.Actions
 
         [SerializeField] private float speedBuff;
         [SerializeField] private float critChanceBuff;
+        [SerializeField] private int range;
+        [SerializeField] private int duration;
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
-            
+            world.AreaSelection.SelectUnit(range, unit.transform.position, true, (u, p) =>
+            {
+                u.AddEffect(new Buff(duration, speedBuff, critChanceBuff));
+            }, AreaSelection.Circle(range));
         }
 
         public void PreviewArea(World world, Unit unit)
@@ -45,12 +50,9 @@ namespace Combat.Actions
                     0,
                     _speedBuff * baseStats.Speed,
                     _critBuff,
+                    0,
                     0
                 );
-            }
-
-            public void OnNewTurn(Unit unit)
-            {
             }
         }
     }

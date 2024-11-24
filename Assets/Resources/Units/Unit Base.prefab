@@ -511,7 +511,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: d20111998717dfc44981aa98ca0906ba, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -685,8 +685,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 130.88501, y: -10}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 130.88501, y: -27.505}
+  m_SizeDelta: {x: 221.77, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1008598756949508362
 MonoBehaviour:
@@ -1008,6 +1008,7 @@ MonoBehaviour:
     <Speed>k__BackingField: 0
     <CritChance>k__BackingField: 0
     <CritMultiplier>k__BackingField: 0
+    <Taunt>k__BackingField: 0
   <CurrentStats>k__BackingField:
     <Attack>k__BackingField: 0
     <Defence>k__BackingField: 0
@@ -1015,6 +1016,7 @@ MonoBehaviour:
     <Speed>k__BackingField: 0
     <CritChance>k__BackingField: 0
     <CritMultiplier>k__BackingField: 0
+    <Taunt>k__BackingField: 0
   <Size>k__BackingField: {x: 0, y: 0}
   <CurrentHpPercentage>k__BackingField: 1
   actions: {fileID: 6252055617280502086}

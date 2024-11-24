@@ -10,9 +10,9 @@ namespace Combat.Actions
         public string Description => "";
 
         [SerializeField] private int range = 3;
-        [SerializeField] private float multiplier;
         [SerializeField] private Vector2Int size;
-
+        [SerializeField] private Stats multipliers;
+        
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
             world.AreaSelection.Select(range, unit.transform.position, size, (p, size) =>
@@ -22,7 +22,7 @@ namespace Combat.Actions
                     for (int j = 0; j < size.y; j++)
                     {
                         if (!world.GetUnitAt(new Vector2Int(i, j) + p, out var u)) continue;
-                        u.Hurt(unit.CurrentStats.Attack * multiplier, unit.UnitLevel);
+                        unit.DealDamageTo(u, unit.CurrentStats.Dot(multipliers));
                     }
                 }
                 

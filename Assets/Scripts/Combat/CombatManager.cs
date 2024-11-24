@@ -1,7 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Combat.Units;
+using Combat.Units.Shaman;
 using UnityEngine;
 
 namespace Combat
@@ -13,10 +15,10 @@ namespace Combat
         public event Action<Unit> OnTurnChanged;
         public event Action<int> OnRoundChanged; 
 
-        private Queue<int> _unitsTurns;
-        [SerializeField] private List<Unit> _units;
-        [SerializeField] private int _round;
-        [SerializeField] private int _acting;
+        private LinkedList<int> _unitsTurns;
+        private List<Unit> _units;
+        private int _round;
+        private int _acting;
 
         private void Awake()
         {
@@ -26,7 +28,7 @@ namespace Combat
 
         private void Start()
         {
-            _unitsTurns = new Queue<int>();
+            _unitsTurns = new LinkedList<int>();
             _acting = -1;
             _round = 0;
         }
@@ -54,7 +56,7 @@ namespace Combat
 
             for (var i = 0; i < _units.Count; i++)
             {
-                _unitsTurns.Enqueue(i);
+                _unitsTurns.AddFirst(i);
             }
 
             OnRoundChanged?.Invoke(_round);
@@ -63,16 +65,21 @@ namespace Combat
 
         public void NextTurn()
         {
-            if (!_unitsTurns.TryDequeue(out var unit))
+            if (_unitsTurns.Count <= 0)
             {
                 _acting = -1;
                 StartNewRound();
                 return;
             }
-            
-            Debug.Log($"{_units[unit].UnitName}({unit})'s turn has started");
-            
-            _acting = unit;
+
+            var first = _unitsTurns.First.Value;
+            _unitsTurns.RemoveFirst();
+            Act(first);
+        }
+
+        private void Act(int i)
+        {
+            _acting = i;
             OnTurnChanged?.Invoke(_units[_acting]);
             _units[_acting].TurnStarted();
             UnitSelectionManager.Current.SelectedUnit = _units[_acting];
@@ -95,6 +102,30 @@ namespace Combat
         {
             if (_acting == -1) return false;
             return unit == _units[_acting];
+        }
+
+        public void PushToNext(Unit unit)
+        {
+            var i = _units.FindIndex(u => u == unit);
+            _unitsTurns.AddFirst(i);
+        }
+
+        public IEnumerable<Unit> GetEnemies()
+        {
+            return _units.Where(u => !u.IsAlly());
+        }
+
+        public IEnumerable<Unit> GetAllies()
+        {
+            return _units.Where(u => u.IsAlly());
+        }
+
+        public void TakeOver(Unit unit)
+        {
+            var i = _units.FindIndex(u => u == unit);
+
+            _unitsTurns.AddFirst(_acting);
+            Act(i);
         }
     }
 }

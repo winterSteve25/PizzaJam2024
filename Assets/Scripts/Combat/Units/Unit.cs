@@ -1,7 +1,11 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Combat.Actions;
+using Combat.DmgNumber;
 using Combat.Effects;
 using Combat.Passives;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 using Worlds;
@@ -9,35 +13,36 @@ using Random = UnityEngine.Random;
 
 namespace Combat.Units
 {
-    public class Unit : MonoBehaviour, IDamagable
+    public class Unit : MonoBehaviour
     {
-        [Header("Stats")]
-        public Vector2Int gridPosition;
-        [field: SerializeField] public string UnitName { get; private set; }
-        [field: SerializeField] public int UnitLevel { get; private set; }
-        [field: SerializeField] public Stats BaseStats { get; private set; }
-        [field: SerializeField] public Stats CurrentStats { get; private set; }
-        [field: SerializeField] public Vector2Int Size { get; private set; }
-        [field: SerializeField] public float CurrentHpPercentage { get; private set; } = 1;
+        [Header("Stats")] public Vector2Int gridPosition;
+        [field: SerializeField] public string UnitName { get; protected set; }
+        [field: SerializeField] public int UnitLevel { get; protected set; }
+        [field: SerializeField] public Stats BaseStats { get; protected set; }
+        [field: SerializeField] public Stats CurrentStats { get; protected set; }
+        [field: SerializeField] public Vector2Int Size { get; protected set; }
+        [field: SerializeField] public float CurrentHpPercentage { get; protected set; } = 1;
 
-        [Header("References")] 
-        [SerializeField] private GameObject actions;
-        [SerializeField] private GameObject passives;
+        [Header("References")] [SerializeField]
+        protected GameObject actions;
 
-        [Header("UI")]
-        [SerializeField] private Slider hpSlider;
-        [SerializeField] private RectTransform info;
+        [SerializeField] protected GameObject passives;
+        protected Material _spriteMaterial;
 
-        public List<(IEffect, int)> Effects { get; private set; }
-        public List<IAction> Actions { get; private set; }
-        public List<IPassive> Passives { get; private set; }
-        
+        [Header("UI")] [SerializeField] protected Slider hpSlider;
+        [SerializeField] protected RectTransform info;
+        protected static readonly int HurtProgressKey = Shader.PropertyToID("_Progress");
+
+        public List<(IEffect, int)> Effects { get; protected set; }
+        public List<IAction> Actions { get; protected set; }
+        public List<IPassive> Passives { get; protected set; }
+
         private void OnDrawGizmosSelected()
         {
             World.DrawBound(transform.position, Size);
         }
 
-        private void Awake()
+        protected virtual void Awake()
         {
             Effects = new List<(IEffect, int)>();
             Actions = new List<IAction>();
@@ -48,7 +53,7 @@ namespace Combat.Units
             transform.position = World.Current.SnapToGrid(transform.position, Size);
 
             CalculateStats();
-            
+
             // NOTE: THIS REQUIRES World.Awake TO RUN BEFORE THIS
             World.Current.AddUnit(transform.position, this);
             CombatManager.Current.AddUnit(this);
@@ -56,19 +61,33 @@ namespace Combat.Units
             hpSlider.value = CurrentHpPercentage;
 
             var infoPos = info.transform.localPosition;
-            infoPos.y = 0.8f * Size.y;
+            infoPos.y = 0.6f * Size.y;
             info.transform.localPosition = infoPos;
 
             LayoutRebuilder.ForceRebuildLayoutImmediate(info);
         }
 
-        public void AddEffect(IEffect effect)
+        protected virtual void Start()
         {
-            Effects.Add((effect, effect.Duration));
-            CalculateStats();
+            _spriteMaterial = GetComponentInChildren<SpriteRenderer>().material;
         }
 
-        private void CalculateStats()
+        public void AddEffect(IEffect effect)
+        {
+            var existing = Effects.FindIndex(x => x.Item1.GetType() == effect.GetType() && !x.Item1.Stackable);
+            if (existing == -1)
+            {
+                Effects.Add((effect, effect.Duration));
+                CalculateStats();
+                return;
+            }
+            
+            var e = Effects[existing];
+            e.Item2 = effect.Duration;
+            Effects[existing] = e;
+        }
+
+        protected void CalculateStats()
         {
             CurrentStats = BaseStats;
 
@@ -91,56 +110,112 @@ namespace Combat.Units
             return Mathf.Pow(2, x * 0.1f);
         }
 
-        public float CalculateDmg(float raw)
+        private float CalculateDmg(float raw, out bool crit)
         {
             if (Random.Range(0f, 1f) < Mathf.Clamp01(CurrentStats.CritChance))
             {
-                // crit
+                crit = true;
                 return raw * (1 + CurrentStats.CritMultiplier);
             }
 
+            crit = false;
             return raw;
         }
 
-        public void Hurt(float raw, int level)
+        public virtual void Hurt(float raw, Unit attacker, out bool crit)
         {
             var currHp = CurrentHpPercentage * CurrentStats.MaxHp;
-            var dmg = DamageReceived(raw, level);
+            var dmg = DamageReceived(CalculateDmg(raw, out crit), attacker.UnitLevel);
             var newPerc = (currHp - dmg) / CurrentStats.MaxHp;
+
+            DamageNumberManager.Current.CreateNumber(dmg, transform.position, false, crit);
 
             if (newPerc <= 0)
             {
                 Die();
+                CurrentHpPercentage = 0;
+                return;
             }
+
+            foreach (var passive in Passives)
+            {
+                passive.OnDamaged(this);
+            }
+
+            foreach (var passive in Effects)
+            {
+                passive.Item1.OnDamaged(this);
+            }
+
+            DOTween.To(
+                () => _spriteMaterial.GetFloat(HurtProgressKey),
+                x => _spriteMaterial.SetFloat(HurtProgressKey, x),
+                1f,
+                0.05f
+            ).OnComplete(() =>
+            {
+                DOTween.To(
+                    () => _spriteMaterial.GetFloat(HurtProgressKey),
+                    x => _spriteMaterial.SetFloat(HurtProgressKey, x),
+                    0f,
+                    0.05f
+                ).SetDelay(0.1f);
+            });
+
+            hpSlider.DOValue(CurrentHpPercentage, 0.1f)
+                .SetEase(Ease.OutCubic);
             
             CurrentHpPercentage = newPerc;
         }
 
-        public void Heal(float raw)
+        public virtual void Heal(float raw)
         {
             HealPercentage(raw / CurrentStats.MaxHp);
         }
 
-        public void HealPercentage(float percentage)
+        public virtual void HealPercentage(float percentage)
         {
+            DamageNumberManager.Current.CreateNumber(percentage * CurrentStats.MaxHp, transform.position, true, false);
             CurrentHpPercentage += percentage;
             CurrentHpPercentage = Mathf.Clamp01(CurrentHpPercentage);
         }
 
-        private void Die()
+        public virtual void DealDamageTo(Unit unit, float raw)
         {
+            unit.Hurt(raw, this, out var crit);
+
+            foreach (var passive in Passives)
+            {
+                passive.OnAttack(this, unit, crit);
+            }
+
+            foreach (var passive in Effects)
+            {
+                passive.Item1.OnAttack(this, unit, crit);
+            }
         }
 
-        public bool IsAlly()
+        protected virtual void Die()
+        {
+            World.Current.RemoveUnit(gridPosition);
+            Destroy(gameObject);
+        }
+
+        public virtual bool IsAlly()
         {
             return true;
         }
 
-        public void TurnStarted()
+        public virtual void TurnStarted()
         {
             foreach (var passive in Passives)
             {
                 passive.OnNewTurn(this);
+            }
+
+            foreach (var passive in Effects)
+            {
+                passive.Item1.OnNewTurn(this);
             }
 
             for (var i = 0; i < Effects.Count; i++)

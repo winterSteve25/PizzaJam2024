@@ -8,7 +8,9 @@ namespace Combat.Actions
     public class DebufferSkill : MonoBehaviour, IAction
     {
         public string Name => "Depression";
-        public string Description => $"Reduce all Enemy DEF by {defDebuff * 100}%, Enemy ATK by {atkDebuff * 100}% for {duration} turns";
+
+        public string Description =>
+            $"Reduce all Enemy DEF by {defDebuff * 100}%, Enemy ATK by {atkDebuff * 100}% for {duration} turns";
 
         [SerializeField] private int range;
         [SerializeField] private float defDebuff = 0.2f;
@@ -17,6 +19,23 @@ namespace Combat.Actions
 
         public void Act(World world, Unit unit, CombatManager combatManager)
         {
+            var pred = AreaSelection.Circle(range);
+
+            var halfRange = Mathf.FloorToInt(range * 0.5f);
+
+            for (int i = -halfRange; i <= halfRange; i++)
+            {
+                for (int j = -halfRange; j <= halfRange; j++)
+                {
+                    if (i == 0 && j == 0) continue;
+                    if (!pred(new Vector2Int(i, j) + unit.gridPosition, unit.gridPosition)) continue;
+                    if (!world.GetUnitAt(new Vector2Int(i, j) + unit.gridPosition, out var other)) continue;
+                    if (other.IsAlly()) continue;
+                    other.AddEffect(new Debuff(duration, defDebuff, atkDebuff));
+                }
+            }
+
+            combatManager.NextTurn();
         }
 
         public void PreviewArea(World world, Unit unit)
@@ -47,12 +66,9 @@ namespace Combat.Actions
                     0,
                     0,
                     0,
+                    0,
                     0
                 );
-            }
-
-            public void OnNewTurn(Unit unit)
-            {
             }
         }
     }

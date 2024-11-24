@@ -9,12 +9,12 @@ namespace Combat.Actions
         public string Name => "Normal Attack";
         public string Description => "Normal Attack";
         
-        [SerializeField] private int range = 5;
-        [SerializeField] private int gap = 1;
-        [SerializeField] private float multiplier;
-        [SerializeField] private Vector2Int size;
+        [SerializeField] protected int range = 5;
+        [SerializeField] protected int gap = 1;
+        [SerializeField] protected Stats multipliers;
+        [SerializeField] protected Vector2Int size;
 
-        public void Act(World world, Unit unit, CombatManager combatManager)
+        public virtual void Act(World world, Unit unit, CombatManager combatManager)
         {
             world.AreaSelection.Select(range, unit.transform.position, size, (p, s) =>
             {
@@ -23,7 +23,7 @@ namespace Combat.Actions
                     for (int j = 0; j < size.y; j++)
                     {
                         if (!world.GetUnitAt(new Vector2Int(i, j) + p, out var u)) continue;
-                        u.Hurt(unit.CurrentStats.Attack * multiplier, unit.UnitLevel);
+                        unit.DealDamageTo(u, unit.CurrentStats.Dot(multipliers));
                     }
                 }
                 
@@ -31,7 +31,7 @@ namespace Combat.Actions
             }, Shape, (p, origin) => world.AreaSelection.Passable(p, origin) && Shape(p, origin));
         }
 
-        private bool Shape(Vector2Int p, Vector2Int origin)
+        protected bool Shape(Vector2Int p, Vector2Int origin)
         {
             var diff = p - origin;
             var dx = Mathf.Abs(diff.x) - 1;

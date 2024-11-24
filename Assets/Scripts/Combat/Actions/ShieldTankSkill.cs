@@ -52,11 +52,7 @@ namespace Combat.Actions
             
             public Stats CalculateBonus(Stats baseStats)
             {
-                return new Stats(0, _buff, 0, 0, 0, 0);
-            }
-
-            public void OnNewTurn(Unit unit)
-            {
+                return new Stats(0, _buff, 0, 0, 0, 0, 0);
             }
         }
     }

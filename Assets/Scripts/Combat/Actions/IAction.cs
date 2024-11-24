@@ -11,5 +11,10 @@ namespace Combat.Actions
         void Act(World world, Unit unit, CombatManager combatManager);
 
         void PreviewArea(World world, Unit unit);
+
+        bool IsAvailable(Unit unit)
+        {
+            return true;
+        }
     }
 }

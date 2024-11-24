@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Combat.Units;
 using UnityEngine;
@@ -11,19 +10,16 @@ namespace Worlds
         public static World Current { get; private set; }
 
         [field: SerializeField] public Tilemap TileMap { get; private set; }
-        [field: SerializeField] public Vector2Int Size { get; private set; }
+        [field: SerializeField] public Vector2Int CameraBounds { get; private set; }
         [field: SerializeField] public AreaSelection AreaSelection { get; private set; }
+        [field: SerializeField] public RectangleCollection PlayableArea { get; private set; }
         
         private Dictionary<Vector2Int, Unit> _units;
 
         private void OnDrawGizmos()
         {
-            DrawBound(Vector3.zero, Size);
-        }
-
-        private void OnValidate()
-        {
-            Current = this;
+            DrawBound(Vector3.zero, CameraBounds);
+            PlayableArea.DrawGizmos();
         }
 
         private void Awake()
@@ -43,6 +39,11 @@ namespace Worlds
             {
                 return false;
             }
+            
+            if (_units.ContainsKey(now))
+            {
+                return false;
+            }
 
             for (int i = 0; i < unit.Size.x; i++)
             {
@@ -51,14 +52,25 @@ namespace Worlds
                     _units.Remove(new Vector2Int(was.x + i, was.y + j));
                 }
             }
-
-            if (_units.ContainsKey(now))
-            {
-                return false;
-            }
-
+            
             AddUnit(now, unit);
             return true;
+        }
+
+        public void RemoveUnit(Vector2Int loc)
+        {
+            if (!_units.TryGetValue(loc, out var unit))
+            {
+                return;
+            }
+            
+            for (int i = 0; i < unit.Size.x; i++)
+            {
+                for (int j = 0; j < unit.Size.y; j++)
+                {
+                    _units.Remove(new Vector2Int(loc.x + i, loc.y + j));
+                }
+            }
         }
 
         public void AddUnit(Vector2Int pos, Unit unit)
@@ -117,7 +129,7 @@ namespace Worlds
         {
             Gizmos.color = Color.white;
 
-            var gridPos = Current.SnapToGrid(position, new Vector3(size.x, size.y, 0));
+            var gridPos = FindFirstObjectByType<World>().SnapToGrid(position, new Vector3(size.x, size.y, 0));
             gridPos.x -= size.x * 0.5f;
             gridPos.y -= size.y * 0.5f;
 

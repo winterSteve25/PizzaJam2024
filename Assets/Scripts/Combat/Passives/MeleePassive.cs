@@ -38,7 +38,8 @@ namespace Combat.Passives
                     0,
                     0,
                     0,
-                    _buff
+                    _buff,
+                    0
                 );
             }
 
@@ -66,6 +67,7 @@ namespace Combat.Passives
                     0,
                     0,
                     _chance,
+                    0,
                     0
                 );
             }

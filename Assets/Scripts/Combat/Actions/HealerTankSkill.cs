@@ -19,6 +19,7 @@ namespace Combat.Actions
 
         public void PreviewArea(World world, Unit unit)
         {
+            world.AreaSelection.PreviewArea(1, unit.transform.position, AreaSelection.Rect());
         }
     }
 }

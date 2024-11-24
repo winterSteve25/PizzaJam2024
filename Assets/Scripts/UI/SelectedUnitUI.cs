@@ -76,7 +76,7 @@ namespace UI
             critMultiplier.text = $"Crit Multiplier: {unit.CurrentStats.CritMultiplier * 100}";
 
             var isTurnOf = CombatManager.Current.IsTurnOf(unit);
-            if (isTurnOf)
+            if (isTurnOf && unit.IsAlly())
             {
                 actionsPanel.gameObject.SetActive(true);
                 ActionButton first = null;
@@ -88,6 +88,7 @@ namespace UI
 
                 foreach (var action in unit.Actions)
                 {
+                    if (!action.IsAvailable(unit)) continue;
                     var btn = Instantiate(actionPrefab, actionsList.transform);
                     btn.Init(action.Name, (RectTransform)arrow.transform);
                     btn.OnClick += () =>
@@ -127,7 +128,9 @@ namespace UI
             }
 
             arrow.alpha = 0;
-            ShowPanel(isTurnOf);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)actionsList.transform);
+            LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)actionsPanel.transform);
+            ShowPanel(isTurnOf && unit.IsAlly());
         }
         private void ShowToolTip(IAction action)
         {
@@ -173,6 +176,8 @@ namespace UI
 
         private void HidePanel(Action callback)
         {
+            HideToolTip();
+            
             mainPanel.blocksRaycasts = false;
             mainPanel.interactable = false;
 

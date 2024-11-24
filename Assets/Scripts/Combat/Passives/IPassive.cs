@@ -8,8 +8,8 @@ namespace Combat.Passives
         
         void OnNewTurn(Unit unit) {}
 
-        void OnAttack(Unit unit, Unit target) {}
+        void OnAttack(Unit unit, Unit target, bool didCrit) {}
 
-        void OnDamaged(Unit unit, Unit attacker) {}
+        void OnDamaged(Unit unit) {}
     }
 }

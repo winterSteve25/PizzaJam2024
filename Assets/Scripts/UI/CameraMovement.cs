@@ -23,8 +23,8 @@ namespace UI
             var pos = World.Current.SnapToGrid(Vector3.zero, Vector2.one);
             transform.position = new Vector3(pos.x, pos.y, -10);
 
-            var cellsX = Mathf.FloorToInt(World.Current.Size.x * 0.5f);
-            var cellsY = Mathf.FloorToInt(World.Current.Size.y * 0.5f);
+            var cellsX = Mathf.FloorToInt(World.Current.CameraBounds.x * 0.5f);
+            var cellsY = Mathf.FloorToInt(World.Current.CameraBounds.y * 0.5f);
 
             if (cellsX == 0)
             {

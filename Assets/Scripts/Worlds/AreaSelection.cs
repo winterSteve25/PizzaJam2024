@@ -1,9 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Combat.Units;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using Random = UnityEngine.Random;
 
 namespace Worlds
 {
@@ -11,7 +13,7 @@ namespace Worlds
     {
         public delegate bool ShapePredicate(Vector2Int position, Vector2Int origin);
 
-        public delegate Vector2Int LandingFunc(Vector2Int position, Vector2Int origin);
+        public delegate Vector2Int LandingFunc(Vector2Int position, Vector2Int origin, Unit selectedUnit);
 
         [SerializeField] private TileBase[] unpassableTiles;
         [SerializeField] private Tilemap areaIndication;
@@ -24,7 +26,7 @@ namespace Worlds
         [SerializeField] private TileBase pointerTile;
         [SerializeField] private TileBase killTile;
         [SerializeField] private TileBase supportTile;
-        
+
         public bool IsPicking { get; private set; }
 
         private Action<Vector2Int, Vector2Int> _areaCallback;
@@ -131,7 +133,7 @@ namespace Worlds
             if (_landingPosition != null)
             {
                 selectedIndication.SetTile(
-                    (Vector3Int)(_landingPosition(gridPosAtMouse, _origin) - gridPosAtMouse),
+                    (Vector3Int)(_landingPosition(gridPosAtMouse, _origin, unit) - gridPosAtMouse),
                     pointerTile
                 );
             }
@@ -149,7 +151,7 @@ namespace Worlds
                 }
                 else
                 {
-                    _unitCallback(unit, _landingPosition(gridPosAtMouse, _origin));
+                    _unitCallback(unit, _landingPosition(gridPosAtMouse, _origin, unit));
                 }
 
                 _unitCallback = null;
@@ -169,7 +171,8 @@ namespace Worlds
             bool rotatable = true
         )
         {
-            Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid, rotatable);
+            Select(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), size, callback, shape, valid,
+                rotatable);
         }
 
         private void Select(
@@ -240,6 +243,25 @@ namespace Worlds
             SetUpSelect(range, (Vector2Int)World.Current.TileMap.WorldToCell(origin), Vector2Int.zero, shape);
         }
 
+        public Vector2Int PickRandomPoint(int range, Vector2Int origin, Vector2Int size, ShapePredicate shape)
+        {
+            var halfRange = Mathf.FloorToInt(range * 0.5f);
+            var lst = new List<Vector2Int>();
+            
+            for (int i = -halfRange; i <= halfRange; i++)
+            {
+                for (int j = -halfRange; j <= halfRange; j++)
+                {
+                    var pos = new Vector2Int(i, j) + origin;
+                    if (!shape(pos, origin)) continue;
+                    if (!Passable(pos, origin)) continue;
+                    lst.Add(pos);
+                }
+            }
+
+            return lst[Random.Range(0, lst.Count)];
+        }
+
         public void RemovePreview()
         {
             areaIndication.ClearAllTiles();
@@ -258,7 +280,7 @@ namespace Worlds
         public bool Passable(Vector2Int p, Vector2Int origin)
         {
             var tile = World.Current.TileMap.GetTile(new Vector3Int(p.x, p.y, 0));
-            return tile == null || !unpassableTiles.Contains(tile);
+            return tile == null || !unpassableTiles.Contains(tile) && World.Current.PlayableArea.IsIn(p);
         }
 
         public bool PassableAndEmpty(Vector2Int p, Vector2Int origin)
